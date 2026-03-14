@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdelSJarwis | Yönetim Paneli</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f0f13; --surface: rgba(20, 20, 25, 0.6);
+            --surface-hover: rgba(35, 35, 45, 0.8); --border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff; --text-muted: #a0a0ab;
+            --accent: #5e5ce6; --accent-hover: #7d7aff; --ai-accent: #10a37f;
+            --danger: #ff453a; --success: #32d74b; --radius: 16px;
+        }
+
+        * { box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background-color: var(--bg-color); background-size: cover; background-position: center; background-attachment: fixed;
+            color: var(--text-main); margin: 0; padding: 0; min-height: 100vh;
+            display: flex; flex-direction: column; transition: background-image 1s ease-in-out;
+        }
+        
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at top right, rgba(94, 92, 230, 0.15), transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(16, 163, 127, 0.1), transparent 40%),
+                        rgba(10, 10, 12, 0.65);
+            z-index: -1; backdrop-filter: blur(5px);
+        }
+
+        /* Mac Dock Style & Removed Header */
+        .mac-dock {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(20, 20, 25, 0.6); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
+            padding: 0.8rem 1.5rem; display: flex; align-items: center; gap: 1.5rem; z-index: 999;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+        .dock-item {
+            background: none; border: none; font-size: 1.8rem; cursor: pointer; color: white;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .dock-item:hover { transform: scale(1.4) translateY(-10px); text-shadow: 0 5px 15px rgba(255,255,255,0.5); }
+        .dock-greeting { font-size: 1rem; color: var(--text-muted); font-weight: 500; border-left: 1px solid var(--border); padding-left: 1.5rem; }
+
+        .ticker-wrap { width: 100%; overflow: hidden; background: rgba(0,0,0,0.5); border-bottom: 1px solid var(--border); padding: 0.5rem 0; display: flex; align-items: center; }
+        .ticker-label { background: var(--danger); color: white; padding: 0.2rem 0.8rem; font-weight: bold; font-size: 0.8rem; border-radius: 4px; margin-left: 1rem; z-index: 2;}
+        .ticker { display: inline-block; white-space: nowrap; padding-left: 100%; animation: ticker 60s linear infinite; }
+        .ticker:hover { animation-play-state: paused; }
+        .ticker-item { display: inline-block; padding: 0 2rem; font-size: 1.1rem; color: #ffffff; font-weight: 500; text-shadow: 1px 1px 3px black; }
+        .ticker-item a { color: #ffffff; text-decoration: none; transition: 0.2s; }
+        @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
+
+        /* Effects (Particles & Weather) */
+        #particles-js, #weather-fx { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .raindrop { position: absolute; top: -10%; width: 2px; height: 20px; background: rgba(255,255,255,0.6); animation: fall linear infinite; }
+        .snowflake { position: absolute; top: -10%; background: #fff; border-radius: 50%; animation: snow linear infinite; filter: blur(1px); }
+        @keyframes fall { to { transform: translateY(110vh); } }
+        @keyframes snow { to { transform: translateY(110vh) translateX(30px); } }
+        @keyframes blink-light { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* Modal Settings */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: #1e1e1e; padding: 2rem; border-radius: 12px; width: 90%; max-width: 400px; border: 1px solid rgba(255,255,255,0.1); }
+        .modal h2 { margin-top: 0; color: var(--primary-color); }
+        .setting-group { margin-bottom: 1.5rem; }
+        .setting-group label { display: block; margin-bottom: 0.5rem; color: var(--text-secondary); }
+        .setting-group select, .setting-group input { width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 6px; box-sizing: border-box;}
+
+        .container { flex: 1; padding: 2rem 2rem 6rem 2rem; display: grid; grid-template-columns: 320px 1fr 320px; gap: 1.5rem; max-width: 1800px; margin: 0 auto; width: 100%; align-items: start; }
+        @media (max-width: 1400px) { .container { grid-template-columns: 280px 1fr 280px; padding: 1.5rem 1rem 6rem 1rem; gap: 1rem; } }
+        @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } }
+        
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            .mac-dock { width: 90%; justify-content: space-around; padding: 0.8rem; gap: 0.5rem; }
+            .dock-greeting { display: none; }
+            .container { padding: 0.8rem 0.8rem 6rem 0.8rem; gap: 1rem; }
+            .widget { padding: 1rem; }
+            .clock-large { font-size: 2.5rem; }
+            .drag-handle { display: none !important; }
+            #side-drawer { width: 100%; max-width: 100%; padding: 1.5rem; }
+            #news-carousel { height: 250px !important; }
+            .flex-row { flex-direction: column; }
+            .flex-row select, .flex-row button { width: 100%; }
+        }
+
+        .col { display: flex; flex-direction: column; gap: 1.5rem; min-height: 200px; }
+
+        .widget {
+            background: var(--surface); backdrop-filter: blur(25px); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; flex-direction: column; transition: border-color 0.3s ease, box-shadow 0.3s ease; position: relative; cursor: grab;
+            transform-style: preserve-3d; /* For VanillaTilt */
+        }
+        .widget:hover { border-color: rgba(255,255,255,0.4); box-shadow: 0 0 25px rgba(255,255,255,0.1); }
+        .widget.dragging { opacity: 0.5; border-color: var(--accent); }
+        .drag-handle { position: absolute; top: 1.2rem; right: 1.2rem; color: var(--text-muted); cursor: grab; font-size: 1.2rem; display: none; }
+        .widget:hover .drag-handle { display: block; }
+        .widget-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; padding-right: 1.5rem; pointer-events: none;}
+
+        input, select, textarea { background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; padding: 0.8rem 1rem; border-radius: 10px; outline: none; width: 100%; box-sizing: border-box; font-family: inherit;}
+        input:focus, textarea:focus { border-color: var(--accent); background: rgba(0,0,0,0.5); }
+        button { font-family: inherit; font-size: 0.95rem; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; }
+        .btn-primary { background: var(--accent); color: white; padding: 0.8rem 1.2rem; }
+        .btn-glass { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); padding: 0.6rem 1rem; }
+        .btn-icon { background: transparent; color: var(--text-muted); padding: 0.5rem; border-radius: 8px; font-size: 1.2rem; }
+
+        .flex-between { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0;}
+        .flex-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+        
+        .clock-large { font-size: 3rem; font-weight: 700; text-align: center; margin: 0.5rem 0; text-shadow: 0 2px 10px rgba(0,0,0,0.5);}
+        
+        /* Calendar */
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; font-weight: bold; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.2rem; text-align: center; font-size: 0.85rem; }
+        .cal-day-name { color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.5rem; }
+        .cal-day { padding: 0.5rem 0; border-radius: 6px; transition: 0.2s; cursor: pointer; }
+        .cal-day:hover { background: rgba(255,255,255,0.1); }
+        .cal-day.today { background: var(--accent); color: white; font-weight: bold; }
+        
+        /* Lists */
+        .list-wrap { max-height: 180px; overflow-y: auto; margin-bottom: 1rem; }
+        .list-item { display: flex; align-items: center; gap: 0.8rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .list-text { flex: 1; font-size: 0.95rem; }
+        .list-text.done { text-decoration: line-through; color: var(--text-muted); }
+        .list-del { color: var(--danger); cursor: pointer; border:none; background:none; opacity: 0; }
+        .list-item:hover .list-del { opacity: 1; }
+
+        /* Breathe Anim */
+        .breathe-circle { width: 60px; height: 60px; border-radius: 50%; background: radial-gradient(circle, var(--success) 0%, rgba(50, 215, 75, 0.2) 80%); animation: breatheAnim 8s ease-in-out infinite; box-shadow: 0 0 20px rgba(50, 215, 75, 0.5); }
+        @keyframes breatheAnim { 0% { transform: scale(1); opacity: 0.5; } 45% { transform: scale(1.8); opacity: 1; } 55% { transform: scale(1.8); opacity: 1; } 100% { transform: scale(1); opacity: 0.5; } }
+
+    </style>
+</head>
+<body>
+    <div class="bg-overlay"></div>
+    <div id="particles-js"></div>
+    <div id="weather-fx"></div>
+    
+    <!-- Üst Logo ve Sistem Durumu -->
+    <div style="padding: 1.5rem 2rem; position: relative; z-index: 100; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; flex-wrap: wrap; gap: 1rem;">
+        <div class="logo" style="font-size: 2rem; font-weight: 700; letter-spacing: -1px; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); cursor: pointer;" onclick="changeBackground()" title="Arkaplanı Değiştir">⌘ AdelS<span style="color: var(--accent);">Jarwis</span></div>
+        
+        <!-- Sistem Sağlık Monitörü -->
+        <div style="display: flex; gap: 1.5rem; font-size: 0.85rem; font-family: monospace; color: var(--text-muted); background: rgba(0,0,0,0.4); padding: 0.6rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); text-transform: uppercase; letter-spacing: 1px; backdrop-filter: blur(10px);">
+            <div style="display: flex; align-items: center; gap: 0.5rem;" title="Ağ ve Donanım Stabil">
+                <span style="display: inline-block; width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 10px var(--success); animation: blink-light 2s infinite;"></span>
+                Sistem Çevrimiçi
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;" title="Yerel Sunucu Koruması Aktif">
+                <span style="display: inline-block; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent);"></span>
+                Bağlantı Şifreli
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;" title="API Verileri Çekiliyor">
+                <span style="display: inline-block; width: 8px; height: 8px; background: var(--secondary-color); border-radius: 50%; box-shadow: 0 0 10px var(--secondary-color); animation: blink-light 4s infinite;"></span>
+                Veriler Senkronize
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mac Dock (Replaces Header) -->
+    <div class="mac-dock">
+        <button class="dock-item" onclick="changeBackground()" title="Arkaplanı Değiştir">🖼️</button>
+        <button class="dock-item" onclick="openSettings()" title="Ayarlar">⚙️</button>
+        <button class="dock-item" onclick="toggleDrawer()" title="Gizli Çekmece">🕵️</button>
+        <div class="dock-greeting" id="greeting">Yükleniyor...</div>
+    </div>
+
+    <div class="ticker-wrap"><div class="ticker-label">SON DAKİKA</div><div class="ticker" id="ticker-content"></div></div>
+
+    <div class="container" id="dashboard-container">
+        <!-- COL 1 -->
+        <div class="col" id="col-1">
+            <div class="widget" id="w-clock" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div style="text-align: center; color: var(--accent); margin-bottom: 1rem;" id="date">--</div>
+                <div class="clock-large" id="clock">00:00</div>
+                <div style="display: flex; justify-content: space-around; margin-top: 1rem; font-size: 0.85rem;">
+                    <div style="text-align:center; color:var(--text-muted)">NY<br><strong id="time-ny" style="color:white">--:--</strong></div>
+                    <div style="text-align:center; color:var(--text-muted)">LON<br><strong id="time-lon" style="color:white">--:--</strong></div>
+                    <div style="text-align:center; color:var(--text-muted)">TOK<br><strong id="time-tok" style="color:white">--:--</strong></div>
+                </div>
+            </div>
+
+            <!-- Yıl İlerlemesi -->
+            <div class="widget" id="w-yearprogress" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title" style="margin-bottom: 0.8rem;">⏳ Yıl İlerlemesi (<span id="yp-year">2026</span>)</div>
+                <div style="background: rgba(0,0,0,0.5); border-radius: 20px; height: 14px; width: 100%; overflow: hidden; border: 1px solid var(--border);">
+                    <div id="yp-bar" style="height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--secondary-color)); box-shadow: 0 0 10px var(--accent); transition: width 1s ease-in-out;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.85rem; font-weight: bold;">
+                    <span id="yp-percent" style="color: white;">--% Bitti</span>
+                    <span id="yp-days" style="color: var(--text-muted);">-- Gün Kaldı</span>
+                </div>
+            </div>
+
+            <div class="widget" id="w-calendar" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">📅 Takvim</div>
+                <div class="cal-header">
+                    <button class="btn-glass" style="padding: 0.2rem 0.6rem;" onclick="changeMonth(-1)">❮</button>
+                    <span id="cal-month-year">...</span>
+                    <button class="btn-glass" style="padding: 0.2rem 0.6rem;" onclick="changeMonth(1)">❯</button>
+                </div>
+                <div class="cal-grid" id="cal-grid"></div>
+            </div>
+
+            <!-- Akıllı Alarm -->
+            <div class="widget" id="w-alarm" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">⏰ Akıllı Alarm</div>
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <input type="time" id="alarm-time" style="flex: 1; padding: 0.4rem; font-size: 1.1rem; text-align: center; background: rgba(0,0,0,0.5);">
+                    <button class="btn-primary" style="padding: 0.4rem 1rem;" onclick="setAlarm()">Kur</button>
+                </div>
+                <input type="text" id="alarm-note" placeholder="Hatırlatma notu (Örn: Toplantı)" style="padding: 0.4rem; font-size: 0.85rem; margin-bottom: 0.5rem;">
+                <div id="alarm-status" style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">Alarm kurulu değil.</div>
+            </div>
+
+            <div class="widget" id="w-network" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">📡 Ağ & IP Monitörü</div>
+                <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 10px; font-size: 0.9rem;">
+                    <div class="flex-between"><span style="color:var(--text-muted)">Açık IP:</span><strong id="ip-addr" style="color:var(--accent)">Sorgulanıyor...</strong></div>
+                    <div class="flex-between"><span style="color:var(--text-muted)">Konum:</span><strong id="ip-loc">--</strong></div>
+                    <div class="flex-between"><span style="color:var(--text-muted)">Sağlayıcı:</span><strong id="ip-isp">--</strong></div>
+                </div>
+            </div>
+
+            <div class="widget" id="w-weather" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">⛅ Hava Durumu</div>
+                <div class="flex-between" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.4rem; margin-bottom: 0.4rem;"><span>İstanbul</span><strong id="w-ist">--°</strong></div>
+                <div class="flex-between" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.4rem; margin-bottom: 0.4rem;"><span>Ankara</span><strong id="w-ank">--°</strong></div>
+                <div class="flex-between" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.4rem; margin-bottom: 0.4rem;"><span>İzmir</span><strong id="w-izm">--°</strong></div>
+                <div class="flex-between" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.4rem; margin-bottom: 0.4rem;"><span>Antalya</span><strong id="w-ant">--°</strong></div>
+                <div class="flex-between"><span>Bursa</span><strong id="w-bur">--°</strong></div>
+            </div>
+
+            <div class="widget" id="w-markets" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">📈 Finans & Kripto</div>
+                <div class="flex-between" style="margin-bottom:0.5rem;"><span>₿ Bitcoin</span><strong id="btc-price" style="color:#f2a900">--</strong></div>
+                <div class="flex-between" style="margin-bottom:0.5rem;"><span>♦ Ethereum</span><strong id="eth-price" style="color:#627eea">--</strong></div>
+                <div class="flex-between" style="margin-bottom:0.5rem;"><span>💵 Dolar (TRY)</span><strong id="usd-price" style="color:var(--success)">--</strong></div>
+                <div class="flex-between" style="margin-bottom:0.5rem;"><span>💶 Euro (TRY)</span><strong id="eur-try" style="color:var(--success)">--</strong></div>
+                <div class="flex-between"><span>🏅 Gram Altın</span><strong id="gold-price" style="color:#ffd700">--</strong></div>
+            </div>
+
+            <div class="widget" id="w-units" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">📏 Birim Çevirici</div>
+                <div class="flex-row">
+                    <input type="number" id="unit-in" value="1" oninput="convUnit()">
+                    <select id="unit-type" onchange="convUnit()" style="width: 110px;">
+                        <option value="km-mi">KM ➔ Mil</option><option value="mi-km">Mil ➔ KM</option>
+                        <option value="c-f">°C ➔ °F</option><option value="f-c">°F ➔ °C</option>
+                        <option value="kg-lb">KG ➔ Lb</option><option value="in-cm">İnç ➔ CM</option>
+                    </select>
+                </div>
+                <div style="background: rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 8px; text-align: center; font-size: 1.2rem; font-weight: 600; color: var(--accent);" id="unit-out">0.62 Mil</div>
+            </div>
+
+            <!-- Çeviri Modülü -->
+            <div class="widget" id="w-translator" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">🌍 Anında Çeviri</div>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <select id="trans-lang" style="width: 100%;" onchange="doTranslate()">
+                        <option value="en|tr">🇬🇧 İngilizce ➔ 🇹🇷 Türkçe</option>
+                        <option value="tr|en">🇹🇷 Türkçe ➔ 🇬🇧 İngilizce</option>
+                        <option value="tr|de">🇹🇷 Türkçe ➔ 🇩🇪 Almanca</option>
+                    </select>
+                    <textarea id="trans-in" placeholder="Çevrilecek metin..." style="min-height: 80px; resize: vertical;" oninput="doTranslate()"></textarea>
+                    <textarea id="trans-out" placeholder="Çeviri sonucu..." style="min-height: 80px; resize: vertical; background: rgba(255,255,255,0.05); color: var(--accent);" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- COL 2 -->
+        <div class="col" id="col-2">
+            <div class="widget" id="w-search" draggable="true" style="padding: 1rem;">
+                <div class="drag-handle" style="top:0.8rem">⋮⋮</div>
+                <div style="display: flex; gap: 0.8rem;">
+                    <form action="https://www.google.com/search" target="_blank" style="flex:1; position:relative;">
+                        <span style="position:absolute; left:1rem; top:50%; transform:translateY(-50%);">🔍</span>
+                        <input type="text" name="q" placeholder="Web'de ara..." style="padding-left:2.5rem; border-radius:20px;" required>
+                    </form>
+                    <form action="https://chatgpt.com/" target="_blank" style="flex:1; position:relative;">
+                        <span style="position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--ai-accent);">🤖</span>
+                        <input type="text" name="q" placeholder="Yapay zekaya sor..." style="padding-left:2.5rem; border-radius:20px; border-color:rgba(16,163,127,0.3);" required>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Görselli Haber Vitrini -->
+            <div class="widget" id="w-news-showcase" draggable="true" style="padding: 0; overflow: hidden; position: relative;">
+                <div class="drag-handle" style="z-index: 10; right: 0.5rem; top: 0.5rem; color: white; background: rgba(0,0,0,0.5); padding: 0.2rem; border-radius: 4px;">⋮⋮</div>
+                
+                <div id="news-carousel" style="width: 100%; height: 380px; position: relative; background: #111;">
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted);">
+                        Haber Vitrini Yükleniyor...
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="widget" id="w-tasks" draggable="true" style="margin:0;">
+                    <div class="drag-handle">⋮⋮</div>
+                    <div class="widget-title">📋 Görevler</div>
+                    <div class="list-wrap" id="task-list"></div>
+                    <form class="flex-row" style="margin:0" onsubmit="event.preventDefault(); addTask();">
+                        <input type="text" id="task-in" placeholder="Yeni görev..."><button type="submit" class="btn-glass">+</button>
+                    </form>
+                </div>
+                <div class="widget" id="w-decision" draggable="true" style="margin:0;">
+                    <div class="drag-handle">⋮⋮</div>
+                    <div class="widget-title">🎲 Karar Verici</div>
+                    <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                        <input type="text" id="dec-opts" placeholder="Virgülle ayır (Örn: A, B, C)" style="font-size: 0.85rem; padding: 0.5rem;">
+                        <button class="btn-primary" onclick="spinDecision()" id="dec-btn" style="padding: 0.5rem;">Zarları At</button>
+                    </div>
+                    <div style="margin-top: 0.8rem; height: 70px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden;">
+                        <span id="dec-res" style="font-size: 1.4rem; font-weight: bold; color: var(--text-muted); transition: 0.1s; text-align: center; padding: 0 0.5rem;">Hazır</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sabit Gider / Abonelik Takipçisi -->
+            <div class="widget" id="w-subs" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">📊 Sabit Gider & Abonelik</div>
+                <div class="list-wrap" id="subs-list" style="max-height: 150px; margin-bottom: 0.5rem;"></div>
+                <form style="display:flex; gap:0.5rem; margin-bottom: 0.5rem;" onsubmit="event.preventDefault(); addSub();">
+                    <input type="text" id="sub-name" placeholder="Örn: Netflix" style="flex:2; padding: 0.4rem;">
+                    <input type="number" id="sub-cost" placeholder="TL" style="flex:1; padding: 0.4rem;">
+                    <button type="submit" class="btn-glass" style="padding: 0.4rem 0.8rem;">+</button>
+                </form>
+                <div style="display: flex; justify-content: space-between; font-weight: bold; border-top: 1px solid var(--border); padding-top: 0.8rem; color: var(--accent); font-size: 1.1rem;">
+                    <span>Aylık Toplam:</span>
+                    <span id="subs-total">0 ₺</span>
+                </div>
+            </div>
+
+            <div class="widget" id="w-converter" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">💱 Döviz Çevirici</div>
+                <div class="flex-row">
+                    <input type="number" id="conv-amount" value="100" oninput="convertCurr()" style="font-weight: 600;">
+                    <select id="conv-from" onchange="convertCurr()" style="width: 90px;"><option value="USD">USD</option><option value="EUR">EUR</option><option value="TRY">TRY</option></select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.9rem;">
+                    <div style="background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 8px;">🇺🇸 <strong id="c-usd">--</strong></div>
+                    <div style="background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 8px;">🇪🇺 <strong id="c-eur">--</strong></div>
+                    <div style="background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 8px;">🇬🇧 <strong id="c-gbp">--</strong></div>
+                    <div style="background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 8px;">🇹🇷 <strong id="c-try">--</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COL 3 -->
+        <div class="col" id="col-3">
+            <div class="widget" id="w-focus" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">
+                    <span>🎧 Odak Modu</span>
+                    <div><button class="btn-icon" style="padding:0.2rem" onclick="switchFocus('pomo')">⏱️</button><button class="btn-icon" style="padding:0.2rem" onclick="switchFocus('breathe')">🌬️</button></div>
+                </div>
+                <div id="view-pomo">
+                    <div style="font-size:2.5rem; font-weight:700; text-align:center;" id="pomo-time">25:00</div>
+                    <div style="display:flex; justify-content:center; gap:0.5rem; margin:0.5rem 0 1rem 0;">
+                        <button class="btn-primary" onclick="togglePomo()" id="pomo-btn">Başlat</button><button class="btn-glass" onclick="resetPomo()">Sıfırla</button>
+                    </div>
+                </div>
+                <div id="view-breathe" style="display:none; flex-direction:column; align-items:center; height:100px; justify-content:center;">
+                    <div class="breathe-circle"></div><div id="breathe-text" style="margin-top:1rem; color:var(--success); font-weight:bold;">Nefes Al...</div>
+                </div>
+                <iframe style="border-radius:10px; margin-top:0.5rem;" src="https://open.spotify.com/embed/playlist/37i9dQZF1DWWQRwui0ExPn?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen></iframe>
+            </div>
+
+            <div class="widget" id="w-notes" draggable="true" style="position: relative;">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">📝 Akıllı Notlar</div>
+                <textarea id="note-area" style="min-height: 120px; resize: vertical; background: rgba(0,0,0,0.2); border: none;" placeholder="Not al veya mikrofona tıkla..."></textarea>
+                <button id="mic-btn" onclick="toggleDictation()" style="position: absolute; right: 1.5rem; bottom: 1.5rem; background: rgba(255,255,255,0.1); border-radius: 50%; width: 40px; height: 40px; border:none; color:white; cursor:pointer;">🎙️</button>
+            </div>
+
+            <div class="widget" id="w-passqr" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">🔐 Şifre & QR Kod</div>
+                <!-- Password -->
+                <div class="flex-row">
+                    <input type="text" id="pass-out" readonly style="font-family:monospace;">
+                    <button class="btn-primary" onclick="genPass()">↻</button>
+                    <button class="btn-glass" onclick="copyPass()">📋</button>
+                </div>
+                <!-- QR -->
+                <div class="flex-row" style="margin-top:0.5rem;">
+                    <input type="text" id="qr-in" placeholder="Link (QR)..." oninput="genQR()">
+                </div>
+                <div style="text-align:center; margin-top:0.5rem;"><img id="qr-img" style="display:none; max-width:100px; border-radius:8px;"></div>
+            </div>
+
+            <div class="widget" id="w-bookmarks" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title"><span>📌 Kısayollar</span><button class="btn-icon" onclick="document.getElementById('bm-form').style.display='flex'">+</button></div>
+                <form id="bm-form" style="display: none; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;" onsubmit="event.preventDefault(); addBm();">
+                    <input type="text" id="bm-name" placeholder="Ad" required><input type="url" id="bm-url" placeholder="Link" required>
+                    <div class="flex-row"><button type="button" class="btn-glass" style="flex:1" onclick="document.getElementById('bm-form').style.display='none'">İptal</button><button type="submit" class="btn-primary" style="flex:1">Ekle</button></div>
+                </form>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem;" id="bm-grid"></div>
+            </div>
+
+            <!-- Pil Monitörü -->
+            <div class="widget" id="w-battery" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">🔋 Sistem Pili</div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="font-size: 3rem;" id="bat-icon">🔋</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 2rem; font-weight: bold; margin-bottom: 0.2rem;" id="bat-level">--%</div>
+                        <div style="color: var(--text-muted); font-size: 0.85rem;" id="bat-status">Hesaplanıyor...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- E-Posta Taslaklayıcı -->
+            <div class="widget" id="w-email" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">✉️ Hızlı E-Posta</div>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <input type="email" id="mail-to" placeholder="Kime (Örn: isim@sirket.com)">
+                    <input type="text" id="mail-sub" placeholder="Konu">
+                    <textarea id="mail-body" placeholder="Mesajınız..." style="min-height: 90px; resize: vertical;"></textarea>
+                    <button class="btn-primary" onclick="openMail()">Mail Uygulamasında Aç</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gizli Çekmece (Slide-out Drawer) -->
+    <div id="side-drawer" style="position: fixed; top: 0; right: -400px; width: 350px; height: 100vh; background: rgba(15,15,20,0.95); backdrop-filter: blur(20px); border-left: 1px solid var(--border); transition: right 0.3s ease; z-index: 999; padding: 2rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+            <h2 style="margin: 0; color: var(--accent); font-weight: 600; font-size: 1.2rem;">🕵️ Gizli Bölme</h2>
+            <button onclick="toggleDrawer(true)" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; transition: 0.2s;">✕</button>
+        </div>
+
+        <!-- Patron Tuşu -->
+        <button style="background: var(--danger); color: white; padding: 0.8rem; border-radius: 8px; font-weight: bold; width: 100%; border: none; cursor: pointer;" onclick="activateBossKey()">⚠️ ACİL GİZLE (ESCx2)</button>
+        
+        <!-- IP Avcısı -->
+        <div class="widget" style="margin: 0; padding: 1rem; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.05); box-shadow: none;">
+            <div class="widget-title" style="margin-bottom:0.5rem; font-size:0.8rem;">📍 IP Avcısı</div>
+            <div style="display:flex; gap:0.5rem;">
+                <input type="text" id="hunt-ip" placeholder="Örn: 8.8.8.8" style="padding:0.4rem; font-size:0.8rem;">
+                <button class="btn-primary" style="padding:0.4rem 0.8rem;" onclick="huntIP()">Bul</button>
+            </div>
+            <div id="hunt-res" style="font-size:0.75rem; color:var(--success); margin-top:0.5rem;"></div>
+        </div>
+
+        <!-- Sahte Kimlik -->
+        <div class="widget" style="margin: 0; padding: 1rem; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.05); box-shadow: none;">
+            <div class="widget-title" style="margin-bottom:0.5rem; font-size:0.8rem;">🕵️ Sahte Kimlik</div>
+            <button class="btn-glass" style="width:100%; padding:0.4rem; font-size:0.8rem; margin-bottom:0.5rem;" onclick="genFakeID()">Yeni Üret</button>
+            <div id="fake-id-res" style="font-size:0.75rem; color:var(--text-muted); line-height: 1.4;"></div>
+        </div>
+
+        <!-- İtiraf Günlüğü -->
+        <div class="widget" style="margin: 0; padding: 1rem; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.05); box-shadow: none;">
+            <div class="widget-title" style="margin-bottom:0.5rem; font-size:0.8rem;">🔥 24 Saatlik Günlük</div>
+            <textarea id="vent-box" placeholder="İçini dök, 24 saat sonra kül olacak..." style="min-height: 60px; font-size:0.8rem; padding:0.5rem;" oninput="saveVent()"></textarea>
+            <div id="vent-timer" style="font-size:0.7rem; color:var(--danger); margin-top:0.3rem;"></div>
+        </div>
+
+        <!-- Çelik Kasa -->
+        <div class="widget" style="margin: 0; padding: 1rem; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.05); box-shadow: none;">
+            <div class="widget-title" style="margin-bottom:0.5rem; font-size:0.8rem;">🛡️ Çelik Kasa (Parolalar)</div>
+            <textarea id="vault-box" placeholder="Kredi kartı, şifre vb..." style="min-height: 60px; font-size:0.8rem; padding:0.5rem;"></textarea>
+            <button class="btn-primary" style="width:100%; padding:0.4rem; font-size:0.8rem; margin-top:0.5rem;" onclick="saveVault()">Güvenli Kaydet</button>
+        </div>
+
+        <!-- Eski Kriptografi Aracı -->
+        <div class="widget" style="margin: 0; padding: 1rem; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.05); box-shadow: none;">
+            <div class="widget-title" style="margin-bottom:0.5rem; font-size:0.8rem;">🔐 Kriptografi (Base64)</div>
+            <textarea id="crypto-in" placeholder="Metin..." style="min-height: 40px; font-size:0.8rem; padding:0.5rem; margin-bottom: 0.5rem;"></textarea>
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <button class="btn-primary" style="flex:1; padding:0.3rem; font-size:0.8rem;" onclick="doCrypto('enc')">Kilitle</button>
+                <button class="btn-glass" style="flex:1; padding:0.3rem; font-size:0.8rem;" onclick="doCrypto('dec')">Çöz</button>
+            </div>
+            <textarea id="crypto-out" placeholder="Sonuç..." style="min-height: 40px; font-size:0.8rem; padding:0.5rem; background: rgba(255,255,255,0.05); color: var(--success);" readonly></textarea>
+        </div>
+    </div>
+
+    <!-- Zen Mode Overlay -->
+    <div id="zen-mode-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index:999999; flex-direction:column; align-items:center; justify-content:center; backdrop-filter:blur(30px);">
+        <h2 style="color:var(--text-muted); font-weight:300; letter-spacing:5px;">ODAKLANMA (ZEN) MODU</h2>
+        <div id="zen-time" style="font-size:8rem; font-weight:700; color:white; text-shadow: 0 0 40px var(--accent); margin: 2rem 0;">25:00</div>
+        <button class="btn-glass" style="font-size:1.2rem; padding: 1rem 2rem; border-color:var(--danger); color:var(--danger);" onclick="togglePomo()">Durdur & Geri Dön</button>
+    </div>
+
+    <!-- Sahte Ekran (Boss Key) Overlay -->
+    <div id="boss-screen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: #006dae; z-index:99999; flex-direction:column; align-items:center; justify-content:center; color:white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <div style="width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1.5rem;"></div>
+        <h2 style="font-weight: 300; font-size: 2rem; margin:0 0 0.5rem 0;">Working on updates</h2>
+        <p style="color:#e0e0e0; font-size:1.2rem; margin:0;">27% complete.<br>Don't turn off your PC. This will take a while.</p>
+        <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+    </div>
+
+    <!-- HLS.js for Live TV -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal" style="max-width: 450px;">
+            <h2 style="margin-bottom: 1.5rem;">⚙️ Sistem Ayarları</h2>
+            <div class="setting-group">
+                <label>Kullanıcı Adı</label>
+                <input type="text" id="setting-name" placeholder="Adınız">
+            </div>
+            <div class="setting-group">
+                <label>Arka Plan Teması</label>
+                <select id="setting-theme">
+                    <option value="0">Süper Araba (Klasik)</option>
+                    <option value="1">Doğa Manzarası</option>
+                    <option value="2">Derin Uzay</option>
+                    <option value="3">Gece Şehri</option>
+                </select>
+            </div>
+            <div class="setting-group">
+                <label>Arayüz Vurgu Rengi (Neon)</label>
+                <select id="setting-color">
+                    <option value="#5e5ce6">Siber Mor (Varsayılan)</option>
+                    <option value="#10a37f">Matrix Yeşili</option>
+                    <option value="#ff453a">Lazer Kırmızı</option>
+                    <option value="#0a84ff">Neon Mavi</option>
+                    <option value="#ffd60a">Elektrik Sarı</option>
+                </select>
+            </div>
+            <div class="setting-group" style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; margin-top: 1rem;">
+                <label style="margin:0; font-weight:500;">Görsel Efektler (Parçacıklar)</label>
+                <input type="checkbox" id="setting-particles" style="width:20px; height:20px; cursor:pointer;" checked>
+            </div>
+            <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                <button class="btn-glass" style="border-color: var(--danger); color: var(--danger);" onclick="resetDashboard()" title="Tüm verileri ve düzeni sıfırlar">Sıfırla</button>
+                <button class="btn-glass" style="flex:1" onclick="closeSettings()">İptal</button>
+                <button class="btn-primary" style="flex:1" onclick="saveSettings()">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3D Tilt Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    <!-- Particles.js -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+    <script>
+        // BACKGROUNDS
+        const bgs = ["https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1920&q=80", "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&w=1920&q=80", "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=80", "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=1920&q=80"];
+        let bgIndex = parseInt(localStorage.getItem('ld_bg_index')) || 0;
+        function changeBackground() { bgIndex = (bgIndex + 1) % bgs.length; document.body.style.backgroundImage = `url('${bgs[bgIndex]}')`; localStorage.setItem('ld_bg_index', bgIndex); }
+        document.body.style.backgroundImage = `url('${bgs[bgIndex]}')`;
+        
+        // OTHERS
+        function openSettings() {
+            let userSettings = JSON.parse(localStorage.getItem('lifedash_settings')) || { name: "Adel", color: "#5e5ce6", particles: true };
+            document.getElementById('setting-name').value = userSettings.name;
+            document.getElementById('setting-color').value = userSettings.color || "#5e5ce6";
+            document.getElementById('setting-particles').checked = userSettings.particles !== false;
+            document.getElementById('settings-modal').style.display='flex';
+        }
+        function closeSettings() { document.getElementById('settings-modal').style.display='none'; }
+        function saveSettings() { 
+            const n = document.getElementById('setting-name').value || "Adel";
+            const t = parseInt(document.getElementById('setting-theme').value);
+            const c = document.getElementById('setting-color').value;
+            const p = document.getElementById('setting-particles').checked;
+            
+            let userSettings = JSON.parse(localStorage.getItem('lifedash_settings')) || {};
+            userSettings.name = n;
+            userSettings.color = c;
+            userSettings.particles = p;
+            localStorage.setItem('lifedash_settings', JSON.stringify(userSettings));
+            
+            // Apply new color
+            document.documentElement.style.setProperty('--accent', c);
+            
+            // Toggle particles display
+            const pDiv = document.getElementById('particles-js');
+            if(pDiv) pDiv.style.display = p ? 'block' : 'none';
+            
+            bgIndex = t; document.body.style.backgroundImage = `url('${bgs[bgIndex]}')`; localStorage.setItem('ld_bg_index', bgIndex);
+            closeSettings();
+        }
+        function resetDashboard() {
+            if(confirm("Tüm görevleriniz, notlarınız ve özel ayarlarınız kalıcı olarak SİLİNECEKTİR. Onaylıyor musunuz?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        // INIT LOAD SETTINGS
+        const initialSet = JSON.parse(localStorage.getItem('lifedash_settings')) || { color: "#5e5ce6", particles: true };
+        if(initialSet.color) document.documentElement.style.setProperty('--accent', initialSet.color);
+        setTimeout(() => {
+            const pDiv = document.getElementById('particles-js');
+            if(pDiv) pDiv.style.display = initialSet.particles !== false ? 'block' : 'none';
+        }, 500);
+
+        // CLOCK & YEAR PROGRESS & ALARM
+        let aTime=null; let aNote="";
+        function setAlarm() { const v=document.getElementById('alarm-time').value; if(v){aTime=v; aNote=document.getElementById('alarm-note').value||"Alarm çalıyor!"; document.getElementById('alarm-status').textContent=`${aTime} için kuruldu.`; document.getElementById('alarm-status').style.color="var(--success)";} }
+        function checkAlarm(nowStr) {
+            if(aTime && nowStr === aTime && new Date().getSeconds() === 0) {
+                alert(`⏰ ALARM: ${aNote}`); aTime=null; document.getElementById('alarm-status').textContent="Alarm kurulu değil."; document.getElementById('alarm-status').style.color="var(--text-muted)";
+                // Flash bg
+                const ov = document.createElement('div'); ov.style.cssText="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,69,58,0.4);z-index:9999;pointer-events:none;"; document.body.appendChild(ov); setTimeout(()=>document.body.removeChild(ov), 3000);
+            }
+        }
+        setInterval(()=>{
+            const n = new Date(); const tStr = n.toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'});
+            document.getElementById('clock').textContent = tStr;
+            document.getElementById('date').textContent = n.toLocaleDateString('tr-TR', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+            const o = {hour:'2-digit',minute:'2-digit',hour12:false};
+            document.getElementById('time-ny').textContent = n.toLocaleTimeString('en-US', {timeZone:'America/New_York',...o});
+            document.getElementById('time-lon').textContent = n.toLocaleTimeString('en-GB', {timeZone:'Europe/London',...o});
+            document.getElementById('time-tok').textContent = n.toLocaleTimeString('ja-JP', {timeZone:'Asia/Tokyo',...o});
+            
+            // Alarm check
+            checkAlarm(tStr);
+
+            // Year Progress
+            const year = n.getFullYear(); const start = new Date(year, 0, 1); const end = new Date(year + 1, 0, 1);
+            const percent = ((n - start) / (end - start)) * 100;
+            const daysLeft = Math.ceil((end - n) / (1000 * 60 * 60 * 24));
+            document.getElementById('yp-year').textContent = year;
+            document.getElementById('yp-bar').style.width = percent + '%';
+            document.getElementById('yp-percent').textContent = '%' + percent.toFixed(1) + ' Bitti';
+            document.getElementById('yp-days').textContent = daysLeft + ' Gün Kaldı';
+
+            // Greeting Update
+            const h = n.getHours();
+            let g = 'İyi Geceler'; if (h>=6 && h<12) g = 'Günaydın'; else if (h>=12 && h<18) g = 'İyi Günler'; else if (h>=18 && h<22) g = 'İyi Akşamlar';
+            let currentSettings = JSON.parse(localStorage.getItem('lifedash_settings')) || { name: "Adel" };
+            document.getElementById('greeting').textContent = `${g}, ${currentSettings.name}`;
+        }, 1000);
+
+        // CALENDAR
+        let cDate = new Date();
+        function rCal() {
+            const y = cDate.getFullYear(); const m = cDate.getMonth();
+            const fDay = new Date(y, m, 1).getDay(); const dInM = new Date(y, m + 1, 0).getDate();
+            document.getElementById('cal-month-year').textContent = `${["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"][m]} ${y}`;
+            const g = document.getElementById('cal-grid'); g.innerHTML = '';
+            ['Pt','Sa','Ça','Pe','Cu','Ct','Pz'].forEach(d => { g.innerHTML += `<div class="cal-day-name">${d}</div>`; });
+            let sOff = fDay === 0 ? 6 : fDay - 1;
+            for(let i=0; i<sOff; i++) g.innerHTML += `<div></div>`;
+            const t = new Date();
+            for(let i=1; i<=dInM; i++) {
+                let cl = 'cal-day'; if(y===t.getFullYear() && m===t.getMonth() && i===t.getDate()) cl += ' today';
+                g.innerHTML += `<div class="${cl}">${i}</div>`;
+            }
+        }
+        function changeMonth(d) { cDate.setMonth(cDate.getMonth() + d); rCal(); } rCal();
+
+        // APIS
+        let rates = {};
+        
+        function makeWeatherFx(type) {
+            const fx = document.getElementById('weather-fx'); fx.innerHTML = '';
+            if(type === 'rain') {
+                for(let i=0; i<150; i++) {
+                    let d = document.createElement('div'); d.className = 'raindrop';
+                    d.style.left = Math.random() * 100 + 'vw';
+                    d.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
+                    d.style.animationDelay = Math.random() * 2 + 's';
+                    fx.appendChild(d);
+                }
+            } else if(type === 'snow') {
+                for(let i=0; i<100; i++) {
+                    let s = document.createElement('div'); s.className = 'snowflake';
+                    s.style.left = Math.random() * 100 + 'vw';
+                    s.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    s.style.animationDelay = Math.random() * 3 + 's';
+                    let size = Math.random() * 4 + 2; s.style.width = size+'px'; s.style.height = size+'px'; s.style.opacity = Math.random();
+                    fx.appendChild(s);
+                }
+            }
+        }
+
+        async function fetchAPIs() {
+            try { const ipD = await fetch('https://ipinfo.io/json').then(r=>r.json()); document.getElementById('ip-addr').textContent = ipD.ip; document.getElementById('ip-loc').textContent = ipD.city; document.getElementById('ip-isp').textContent = ipD.org.substring(0,15); } catch(e){}
+            
+            // Weather for 5 Cities
+            const cities = [ {id:'w-ist',lat:41.00,lon:28.97}, {id:'w-ank',lat:39.92,lon:32.85}, {id:'w-izm',lat:38.41,lon:27.13}, {id:'w-ant',lat:36.88,lon:30.70}, {id:'w-bur',lat:40.18,lon:29.06} ];
+            cities.forEach(async (c, idx) => {
+                try { 
+                    const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current_weather=true`).then(r=>r.json()); 
+                    document.getElementById(c.id).textContent = `${Math.round(w.current_weather.temperature)}°C`; 
+                    
+                    // Sadece İstanbul (ilk şehir) için hava durumu efektini çalıştır
+                    if(idx === 0) {
+                        const code = w.current_weather.weathercode;
+                        if ([51,53,55,61,63,65,80,81,82,95,96,99].includes(code)) makeWeatherFx('rain');
+                        else if ([71,73,75,85,86].includes(code)) makeWeatherFx('snow');
+                        else makeWeatherFx('clear');
+                    }
+                } catch(e){}
+            });
+
+            // Finance (Binance)
+            try {
+                const c = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=["BTCUSDT","ETHUSDT","USDTTRY","EURUSDT","PAXGUSDT"]').then(r=>r.json());
+                const fmt = p => '$' + parseFloat(p).toLocaleString('en-US', {maximumFractionDigits:0});
+                document.getElementById('btc-price').textContent = fmt(c.find(x=>x.symbol==="BTCUSDT").price); 
+                document.getElementById('eth-price').textContent = fmt(c.find(x=>x.symbol==="ETHUSDT").price);
+                const usdtry = parseFloat(c.find(x=>x.symbol==="USDTTRY").price);
+                document.getElementById('usd-price').textContent = '₺' + usdtry.toFixed(2);
+                
+                const eurusdt = parseFloat(c.find(x=>x.symbol==="EURUSDT").price);
+                document.getElementById('eur-try').textContent = '₺' + (eurusdt * usdtry).toFixed(2);
+
+                // Gram Altın Calculation (Ounce Gold PAXG / 31.103 * USDTRY)
+                const paxg = parseFloat(c.find(x=>x.symbol==="PAXGUSDT").price);
+                const gramTry = (paxg / 31.1034768) * usdtry;
+                document.getElementById('gold-price').textContent = '₺' + gramTry.toFixed(0);
+            } catch(e){}
+
+            // Currency Converter Rates
+            try { const r = await fetch('https://api.exchangerate-api.com/v4/latest/USD').then(r=>r.json()); rates = r.rates; convertCurr(); } catch(e){}
+            try { const n = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.donanimhaber.com/rss/anasayfa').then(r=>r.json()); if(n.items) document.getElementById('ticker-content').innerHTML = n.items.slice(0,10).map(i=>`<span class="ticker-item"><a href="${i.link}" target="_blank">▪ ${i.title}</a></span>`).join(''); } catch(e){}
+        }
+        function convertCurr() {
+            if(!rates.TRY) return; const amt = parseFloat(document.getElementById('conv-amount').value)||0; const frm = document.getElementById('conv-from').value;
+            const bUSD = amt / rates[frm]; const fmt = (v,s) => s + parseFloat(v).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+            document.getElementById('c-usd').textContent=fmt(bUSD*rates['USD'],'$'); document.getElementById('c-eur').textContent=fmt(bUSD*rates['EUR'],'€');
+            document.getElementById('c-gbp').textContent=fmt(bUSD*rates['GBP'],'£'); document.getElementById('c-try').textContent=fmt(bUSD*rates['TRY'],'₺');
+        }
+        fetchAPIs(); setInterval(fetchAPIs, 300000);
+
+        // NEWS SHOWCASE (Visual Carousel)
+        let newsItems = []; let currNewsIdx = 0;
+        async function fetchNewsShowcase() {
+            try {
+                // Fetching from a reliable visual news source (DonanımHaber includes images in enclosures)
+                const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.donanimhaber.com/rss/anasayfa');
+                const data = await res.json();
+                if(data.items && data.items.length > 0) {
+                    newsItems = data.items.filter(i => i.enclosure && i.enclosure.link).slice(0, 8);
+                    if(newsItems.length > 0) {
+                        renderNewsSlide();
+                        setInterval(() => { currNewsIdx = (currNewsIdx + 1) % newsItems.length; renderNewsSlide(); }, 6000);
+                    } else {
+                        document.getElementById('news-carousel').innerHTML = '<div style="padding:2rem;color:white;">Haberlerde görsel bulunamadı.</div>';
+                    }
+                }
+            } catch(e) {}
+        }
+        function renderNewsSlide() {
+            if(newsItems.length === 0) return;
+            const item = newsItems[currNewsIdx];
+            const img = item.enclosure.link;
+            document.getElementById('news-carousel').innerHTML = `
+                <a href="${item.link}" target="_blank" style="display:block; width:100%; height:100%; text-decoration:none; animation: fadeIn 1s;">
+                    <div style="width:100%; height:100%; background: url('${img}') center/cover; position:relative;">
+                        <div style="position:absolute; bottom:0; left:0; width:100%; background: linear-gradient(transparent, rgba(0,0,0,0.95)); padding: 3rem 1.5rem 1.5rem 1.5rem; box-sizing: border-box;">
+                            <span style="background: var(--accent); color: white; padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.8rem; display: inline-block;">GÜNDEM</span>
+                            <h2 style="color: white; margin: 0; font-size: 1.4rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); line-height: 1.4;">${item.title}</h2>
+                        </div>
+                    </div>
+                </a>
+                <style>@keyframes fadeIn { from { opacity: 0.5; } to { opacity: 1; } }</style>
+            `;
+        }
+        fetchNewsShowcase();
+
+        // UNITS, PASS, QR
+        function convUnit() {
+            const v = parseFloat(document.getElementById('unit-in').value)||0; const t = document.getElementById('unit-type').value; let o="";
+            if(t==='km-mi')o=(v*0.621).toFixed(2)+' Mil'; if(t==='mi-km')o=(v*1.609).toFixed(2)+' KM';
+            if(t==='c-f')o=((v*9/5)+32).toFixed(1)+' °F'; if(t==='f-c')o=((v-32)*5/9).toFixed(1)+' °C';
+            if(t==='kg-lb')o=(v*2.204).toFixed(2)+' Lb'; if(t==='in-cm')o=(v*2.54).toFixed(2)+' CM';
+            document.getElementById('unit-out').textContent = o;
+        } convUnit();
+        function genPass() { let p=""; const ch="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()"; for(let i=0;i<16;i++)p+=ch.charAt(Math.floor(Math.random()*ch.length)); document.getElementById('pass-out').value=p; } genPass();
+        function copyPass() { navigator.clipboard.writeText(document.getElementById('pass-out').value); alert('Kopyalandı!'); }
+        function genQR() { const v=document.getElementById('qr-in').value.trim(); const img=document.getElementById('qr-img'); if(v){img.src=`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(v)}`; img.style.display='block';}else{img.style.display='none';} }
+
+        // FOCUS & VOICE & NOTES
+        const nA = document.getElementById('note-area'); nA.value = localStorage.getItem('ld_notes')||''; nA.addEventListener('input', e => localStorage.setItem('ld_notes', e.target.value));
+        let rec; let isDict = false; const micBtn = document.getElementById('mic-btn');
+        if ('webkitSpeechRecognition' in window) {
+            rec = new webkitSpeechRecognition(); rec.continuous = true; rec.interimResults = true; rec.lang = 'tr-TR';
+            rec.onresult = e => { let t=''; for(let i=e.resultIndex; i<e.results.length; ++i) if(e.results[i].isFinal) t+=e.results[i][0].transcript+' '; if(t){nA.value+=(nA.value?' ':'')+t; localStorage.setItem('ld_notes',nA.value);} };
+            rec.onend = () => { isDict=false; micBtn.style.background='rgba(255,255,255,0.1)'; };
+        }
+        function toggleDictation() { if(!rec) return; if(isDict) rec.stop(); else { rec.start(); isDict=true; micBtn.style.background='var(--danger)'; } }
+
+        let pInt; let pTime=25*60; let pRun=false; 
+        function uPomo() {
+            const tStr = `${Math.floor(pTime/60).toString().padStart(2,'0')}:${(pTime%60).toString().padStart(2,'0')}`;
+            document.getElementById('pomo-time').textContent = tStr;
+            document.getElementById('zen-time').textContent = tStr;
+        }
+        function togglePomo(){ 
+            if(pRun){
+                clearInterval(pInt); pRun=false; 
+                document.getElementById('pomo-btn').textContent = 'Devam';
+                document.getElementById('zen-mode-overlay').style.display = 'none';
+            } else {
+                pRun=true; document.getElementById('pomo-btn').textContent = 'Duraklat';
+                document.getElementById('zen-mode-overlay').style.display = 'flex';
+                pInt=setInterval(() => {
+                    if(pTime>0){ pTime--; uPomo(); } else { clearInterval(pInt); pRun=false; alert("Mola Zamanı!"); resetPomo(); }
+                }, 1000);
+            } 
+        }
+        function resetPomo(){ clearInterval(pInt); pRun=false; pTime=25*60; document.getElementById('pomo-btn').textContent='Başlat'; document.getElementById('zen-mode-overlay').style.display='none'; uPomo(); }
+        let bInt; function switchFocus(m){
+            if(m==='pomo'){document.getElementById('view-pomo').style.display='block'; document.getElementById('view-breathe').style.display='none'; clearInterval(bInt);}
+            else{document.getElementById('view-pomo').style.display='none'; document.getElementById('view-breathe').style.display='flex'; let i=true; bInt=setInterval(()=>{i=!i; document.getElementById('breathe-text').textContent=i?"Nefes Al...":"Nefes Ver..."; document.getElementById('breathe-text').style.color=i?"var(--success)":"var(--accent)";},4000);}
+        }
+
+        // DECISION MAKER (Rulet)
+        function spinDecision() {
+            const input = document.getElementById('dec-opts').value;
+            if(!input) return;
+            const opts = input.split(',').map(o => o.trim()).filter(o => o);
+            if(opts.length < 2) { alert("En az 2 seçenek yazmalısınız!"); return; }
+            
+            const resBox = document.getElementById('dec-res');
+            const btn = document.getElementById('dec-btn');
+            btn.disabled = true; resBox.style.color = 'white'; resBox.style.textShadow = 'none';
+            
+            let spins = 0; const maxSpins = 20;
+            const interval = setInterval(() => {
+                resBox.textContent = opts[Math.floor(Math.random() * opts.length)];
+                resBox.style.transform = `scale(${1 + Math.random()*0.1})`;
+                spins++;
+                if(spins > maxSpins) {
+                    clearInterval(interval);
+                    resBox.style.transform = 'scale(1.1)';
+                    resBox.style.color = 'var(--success)';
+                    resBox.style.textShadow = '0 0 15px rgba(50, 215, 75, 0.8)';
+                    btn.disabled = false;
+                }
+            }, 100);
+        }
+
+        // LISTS & BOOKMARKS
+        // Subs
+        let subs = JSON.parse(localStorage.getItem('ld_subs')) || [];
+        function rSubs() {
+            const ul = document.getElementById('subs-list'); ul.innerHTML = ''; let tot = 0;
+            subs.forEach((s,i) => {
+                tot += parseFloat(s.c);
+                ul.innerHTML += `<div class="list-item" style="justify-content:space-between;"><div class="list-text">${s.n}</div><div style="font-weight:600; font-size:0.9rem;">${s.c} ₺</div><button class="list-del" onclick="delSub(${i})">×</button></div>`;
+            });
+            document.getElementById('subs-total').textContent = tot.toFixed(2) + ' ₺';
+            localStorage.setItem('ld_subs', JSON.stringify(subs));
+        }
+        function addSub() { const n=document.getElementById('sub-name').value.trim(); const c=parseFloat(document.getElementById('sub-cost').value); if(n&&c){subs.push({n:n,c:c}); document.getElementById('sub-name').value=''; document.getElementById('sub-cost').value=''; rSubs();} }
+        function delSub(i) { subs.splice(i,1); rSubs(); }
+        rSubs();
+
+        const lsT='ld_tasks'; let ts=JSON.parse(localStorage.getItem(lsT))||[]; 
+
+        function rL(arr,elId,key){ const ul=document.getElementById(elId); ul.innerHTML=''; arr.forEach((item,i)=>{ ul.innerHTML+=`<div class="list-item"><input type="checkbox" class="checkbox" ${item.c?'checked':''} onchange="tg('${key}',${i})"><div class="list-text ${item.c?'done':''}">${item.t}</div><button class="list-del" onclick="dl('${key}',${i})">×</button></div>`; }); localStorage.setItem(key,JSON.stringify(arr)); }
+        function tg(k,i){ const a=ts; a[i].c=!a[i].c; rL(a,'task-list',k); } function dl(k,i){ const a=ts; a.splice(i,1); rL(a,'task-list',k); }
+        function addTask(){ const v=document.getElementById('task-in').value.trim(); if(v){ts.push({t:v,c:false}); document.getElementById('task-in').value=''; rL(ts,'task-list',lsT);} }
+        rL(ts,'task-list',lsT);
+
+        let bms = JSON.parse(localStorage.getItem('ld_bms'))||[{n:"YouTube",u:"https://youtube.com"}];
+        function rBm(){ const g=document.getElementById('bm-grid'); g.innerHTML=''; bms.forEach((b,i)=>{let d="google.com";try{d=new URL(b.u).hostname;}catch(e){} g.innerHTML+=`<a href="${b.u}" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;text-decoration:none;color:var(--text-muted);font-size:0.75rem;background:rgba(0,0,0,0.2);padding:0.5rem;border-radius:8px;position:relative;"><button onclick="event.preventDefault();bms.splice(${i},1);rBm();" style="position:absolute;top:-5px;right:-5px;background:var(--danger);color:white;border:none;border-radius:50%;width:16px;height:16px;font-size:10px;cursor:pointer;">X</button><img src="https://www.google.com/s2/favicons?domain=${d}&sz=64" style="width:32px;height:32px;border-radius:8px;background:white;padding:2px;"><span style="max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${b.n}</span></a>`;}); localStorage.setItem('ld_bms',JSON.stringify(bms)); }
+        function addBm(){ const n=document.getElementById('bm-name').value; let u=document.getElementById('bm-url').value; if(n&&u){if(!u.includes('://'))u='https://'+u; bms.push({n,u}); rBm(); document.getElementById('bm-form').style.display='none';} } rBm();
+
+        // TRANSLATOR
+        let transTO;
+        function doTranslate() {
+            clearTimeout(transTO);
+            transTO = setTimeout(async () => {
+                const t = document.getElementById('trans-in').value.trim();
+                const o = document.getElementById('trans-out');
+                if(!t) { o.value = ''; return; }
+                o.value = 'Çevriliyor...';
+                const p = document.getElementById('trans-lang').value.split('|');
+                try {
+                    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${p[0]}&tl=${p[1]}&dt=t&q=${encodeURI(t)}`);
+                    const data = await res.json();
+                    o.value = data[0].map(x => x[0]).join('');
+                } catch(e) { o.value = 'Hata oluştu.'; }
+            }, 500);
+        }
+
+        // EMAIL DRAFTER
+        function openMail() {
+            const to = document.getElementById('mail-to').value.trim();
+            const sub = encodeURIComponent(document.getElementById('mail-sub').value);
+            const body = encodeURIComponent(document.getElementById('mail-body').value);
+            window.location.href = `mailto:${to}?subject=${sub}&body=${body}`;
+        }
+
+        // SLIDE-OUT DRAWER & AGENT TOOLS
+        let isDrawerOpen = false;
+        function toggleDrawer(closeOnly=false) {
+            const d = document.getElementById('side-drawer');
+            const drawerWidth = window.innerWidth < 768 ? '-100%' : '-400px';
+            
+            if(isDrawerOpen || closeOnly) {
+                d.style.right = drawerWidth; isDrawerOpen = false;
+            } else {
+                const pass = prompt("Gizli bölmeye erişmek için şifrenizi girin:");
+                if(pass === "2201") { d.style.right = '0px'; isDrawerOpen = true; }
+                else if(pass !== null) { alert("Yanlış şifre! Erişim reddedildi."); }
+            }
+        }
+        function doCrypto(action) {
+            const text = document.getElementById('crypto-in').value;
+            const out = document.getElementById('crypto-out');
+            if(!text) return;
+            try {
+                if(action === 'enc') {
+                    out.value = btoa(unescape(encodeURIComponent(text)));
+                } else {
+                    out.value = decodeURIComponent(escape(atob(text)));
+                }
+            } catch(e) {
+                out.value = "HATA: Geçersiz veya bozuk şifre metni!";
+            }
+        }
+
+        function activateBossKey() {
+            document.getElementById('boss-screen').style.display = 'flex';
+            document.documentElement.requestFullscreen().catch((e) => {});
+        }
+        document.getElementById('boss-screen').addEventListener('dblclick', function() {
+            this.style.display = 'none';
+            if (document.exitFullscreen) document.exitFullscreen();
+        });
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'Escape' && document.getElementById('boss-screen').style.display === 'flex') {
+                document.getElementById('boss-screen').style.display = 'none';
+            }
+        });
+
+        async function huntIP() {
+            const ip = document.getElementById('hunt-ip').value.trim();
+            const resBox = document.getElementById('hunt-res');
+            if(!ip) return;
+            resBox.textContent = 'Aranıyor...';
+            try {
+                const res = await fetch(`https://ipinfo.io/${ip}/json`);
+                const data = await res.json();
+                if(data.bogon) { resBox.textContent = 'Hata: Geçersiz IP adresi.'; return; }
+                resBox.innerHTML = `🌍 Şehir: ${data.city || 'Bilinmiyor'}<br>🏳️ Ülke: ${data.country || 'Bilinmiyor'}<br>🏢 ISP: ${data.org || 'Bilinmiyor'}<br>📍 Koor: <a href="https://maps.google.com/?q=${data.loc}" target="_blank" style="color:var(--accent)">Haritada Gör</a>`;
+            } catch(e) { resBox.textContent = 'IP bulunamadı.'; }
+        }
+
+        async function genFakeID() {
+            const resBox = document.getElementById('fake-id-res'); resBox.textContent = 'Üretiliyor...';
+            try {
+                const res = await fetch('https://randomuser.me/api/?inc=name,location,email,login,phone');
+                const d = await res.json(); const u = d.results[0];
+                resBox.innerHTML = `
+                    <div style="margin-bottom:4px"><b>İsim:</b> ${u.name.first} ${u.name.last}</div>
+                    <div style="margin-bottom:4px"><b>Adres:</b> ${u.location.city}, ${u.location.country}</div>
+                    <div style="margin-bottom:4px"><b>E-Posta:</b> ${u.email}</div>
+                    <div style="margin-bottom:4px"><b>Telefon:</b> ${u.phone}</div>
+                    <div><b>Şifre:</b> ${u.login.password}</div>
+                `;
+            } catch(e) { resBox.textContent = 'Bağlantı hatası.'; }
+        }
+
+        // 24H Vent Box
+        function saveVent() {
+            localStorage.setItem('ld_vent', document.getElementById('vent-box').value);
+            localStorage.setItem('ld_vent_time', Date.now()); checkVent();
+        }
+        function checkVent() {
+            const t = localStorage.getItem('ld_vent_time');
+            if(t) {
+                const diff = Date.now() - parseInt(t); const left = (24 * 60 * 60 * 1000) - diff;
+                if(left <= 0) {
+                    localStorage.removeItem('ld_vent'); localStorage.removeItem('ld_vent_time');
+                    document.getElementById('vent-box').value = ""; document.getElementById('vent-timer').textContent = "Kül oldu.";
+                } else {
+                    document.getElementById('vent-box').value = localStorage.getItem('ld_vent');
+                    const h = Math.floor(left / 3600000); const m = Math.floor((left % 3600000) / 60000);
+                    document.getElementById('vent-timer').textContent = `İmhaya: ${h}s ${m}dk`;
+                }
+            }
+        }
+        setInterval(checkVent, 60000); checkVent();
+
+        // Vault
+        document.getElementById('vault-box').value = localStorage.getItem('ld_vault') || '';
+        function saveVault() {
+            localStorage.setItem('ld_vault', document.getElementById('vault-box').value);
+            alert('Kasa Kilitlendi!');
+        }
+
+        // LIVE TV CHANGER (Web Player Embeds)
+        function changeLiveTV() {
+            const url = document.getElementById('tv-select').value;
+            document.getElementById('tv-frame').src = url;
+        }
+
+        // BATTERY MONITOR
+        async function initBattery() {
+            const icon = document.getElementById('bat-icon');
+            const level = document.getElementById('bat-level');
+            const status = document.getElementById('bat-status');
+
+            if ('getBattery' in navigator) {
+                try {
+                    const b = await navigator.getBattery();
+                    function updateB() {
+                        const p = Math.round(b.level * 100);
+                        level.textContent = p + '%';
+                        level.style.color = p <= 20 ? 'var(--danger)' : 'white';
+                        
+                        if (b.charging) {
+                            icon.textContent = '⚡';
+                            status.textContent = 'Şarj Oluyor';
+                        } else {
+                            icon.textContent = p <= 20 ? '🪫' : '🔋';
+                            const left = b.dischargingTime;
+                            if(left !== Infinity && left > 0) {
+                                const h = Math.floor(left / 3600); const m = Math.floor((left % 3600) / 60);
+                                status.textContent = `Kalan: ${h}s ${m}dk`;
+                            } else {
+                                status.textContent = 'Pil Kullanımda';
+                            }
+                        }
+                    }
+                    updateB();
+                    b.addEventListener('levelchange', updateB); b.addEventListener('chargingchange', updateB); b.addEventListener('dischargingtimechange', updateB);
+                } catch(e) { status.textContent = "Hata"; }
+            } else {
+                level.textContent = "Gizli"; level.style.fontSize = "1.5rem";
+                status.innerHTML = "Apple/Safari güvenlik<br>nedeniyle izin vermiyor.";
+                icon.textContent = '🔒';
+            }
+        }
+        initBattery();
+
+        // DRAG & DROP
+        let draggedItem = null;
+        document.querySelectorAll('.widget').forEach(w => {
+            w.addEventListener('dragstart', function() { draggedItem = this; setTimeout(() => this.classList.add('dragging'), 0); });
+            w.addEventListener('dragend', function() { this.classList.remove('dragging'); draggedItem = null; saveLayout(); });
+        });
+        document.querySelectorAll('.col').forEach(col => {
+            col.addEventListener('dragover', function(e) {
+                e.preventDefault(); const after = getDragAfterElement(col, e.clientY);
+                if (after == null) col.appendChild(draggedItem); else col.insertBefore(draggedItem, after);
+            });
+        });
+        function getDragAfterElement(c, y) {
+            return [...c.querySelectorAll('.widget:not(.dragging)')].reduce((cl, ch) => {
+                const box = ch.getBoundingClientRect(); const off = y - box.top - box.height / 2;
+                if (off < 0 && off > cl.offset) return { offset: off, element: ch }; else return cl;
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+        function saveLayout() { const layout = {}; document.querySelectorAll('.col').forEach((col, idx) => { layout[`col-${idx+1}`] = [...col.querySelectorAll('.widget')].map(w => w.id); }); localStorage.setItem('ld_layout', JSON.stringify(layout)); }
+        function loadLayout() { 
+            const saved = JSON.parse(localStorage.getItem('ld_layout')); 
+            if(!saved) return; 
+            
+            // Yeni eklenen widgetların kaybolmaması için güvenlik kontrolü:
+            // Eğer kaydedilmiş düzende 'w-alarm' yoksa, düzeni sıfırla (yeni modülleri görebilmek için)
+            let hasNewWidgets = false;
+            for(let i=1; i<=3; i++) {
+                if(saved[`col-${i}`] && saved[`col-${i}`].includes('w-alarm')) hasNewWidgets = true;
+            }
+            if(!hasNewWidgets) {
+                localStorage.removeItem('ld_layout');
+                return; // Yeni düzende varsayılan olarak kalsın
+            }
+
+            for(let i=1; i<=3; i++) { 
+                const col = document.getElementById(`col-${i}`); 
+                if(saved[`col-${i}`]) saved[`col-${i}`].forEach(wId => { 
+                    const w = document.getElementById(wId); 
+                    if(w) col.appendChild(w); 
+                }); 
+            } 
+        }
+        loadLayout();
+
+        // INIT PARTICLES & 3D TILT
+        if(window.innerWidth > 768) {
+            particlesJS("particles-js", {
+                "particles": {
+                    "number": { "value": 40, "density": { "enable": true, "value_area": 800 } },
+                    "color": { "value": "#ffffff" },
+                    "shape": { "type": "circle" },
+                    "opacity": { "value": 0.2, "random": false },
+                    "size": { "value": 2, "random": true },
+                    "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.1, "width": 1 },
+                    "move": { "enable": true, "speed": 1, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": true, "mode": "push" }, "resize": true },
+                    "modes": { "grab": { "distance": 140, "line_linked": { "opacity": 0.5 } }, "push": { "particles_nb": 2 } }
+                },
+                "retina_detect": true
+            });
+
+            VanillaTilt.init(document.querySelectorAll(".widget"), {
+                max: 3, speed: 400, glare: true, "max-glare": 0.15, scale: 1.01
+            });
+        }
+    </script>
+</body>
+</html>
