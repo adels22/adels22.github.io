@@ -7,11 +7,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0f0f13; --surface: rgba(20, 20, 25, 0.6);
-            --surface-hover: rgba(35, 35, 45, 0.8); --border: rgba(255, 255, 255, 0.1);
+            --bg-color: #0f0f13; --surface: rgba(20, 20, 25, 0.45);
+            --surface-hover: rgba(35, 35, 45, 0.65); --border: rgba(255, 255, 255, 0.08);
             --text-main: #ffffff; --text-muted: #a0a0ab;
             --accent: #5e5ce6; --accent-hover: #7d7aff; --ai-accent: #10a37f;
-            --danger: #ff453a; --success: #32d74b; --radius: 16px;
+            --danger: #ff453a; --success: #32d74b; --radius: 20px;
         }
 
         * { box-sizing: border-box; }
@@ -32,24 +32,34 @@
             background: radial-gradient(circle at top right, rgba(94, 92, 230, 0.15), transparent 40%),
                         radial-gradient(circle at bottom left, rgba(16, 163, 127, 0.1), transparent 40%),
                         rgba(10, 10, 12, 0.65);
-            z-index: -1; backdrop-filter: blur(5px);
+            z-index: -1; backdrop-filter: blur(10px);
         }
 
-        /* Mac Dock Style & Removed Header */
-        .mac-dock {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(20, 20, 25, 0.6); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
-            padding: 0.8rem 1.5rem; display: flex; align-items: center; gap: 1.5rem; z-index: 999;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        /* Left Navigation Sidebar */
+        .sidebar {
+            position: fixed; top: 0; left: -300px; width: 280px; height: 100vh;
+            background: rgba(15, 15, 20, 0.85); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            border-right: 1px solid rgba(255,255,255,0.08); box-shadow: 5px 0 30px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; align-items: flex-start; padding: 2rem 1.5rem; z-index: 1001;
+            transition: left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); overflow: hidden;
         }
-        .dock-item {
-            background: none; border: none; font-size: 1.8rem; cursor: pointer; color: white;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            display: flex; align-items: center; justify-content: center;
+        .sidebar.active { left: 0; }
+        .sidebar .nav-text { opacity: 1; display: block; white-space: nowrap; font-weight: 500; font-size: 1.05rem; }
+        
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index: 1000;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
         }
-        .dock-item:hover { transform: scale(1.4) translateY(-10px); text-shadow: 0 5px 15px rgba(255,255,255,0.5); }
-        .dock-greeting { font-size: 1rem; color: var(--text-muted); font-weight: 500; border-left: 1px solid var(--border); padding-left: 1.5rem; }
+        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .nav-item {
+            background: transparent; border: none; color: var(--text-muted); cursor: pointer;
+            display: flex; align-items: center; gap: 1rem; width: 100%; padding: 0.8rem 1rem; border-radius: 12px;
+            transition: all 0.3s ease; justify-content: flex-start; margin-bottom: 0.5rem;
+        }
+        .nav-item:hover { color: white; background: rgba(255,255,255,0.05); transform: translateX(5px); }
+        .nav-icon { font-size: 1.5rem; flex-shrink: 0; }
 
         .ticker-wrap { width: 100%; overflow: hidden; background: rgba(0,0,0,0.5); border-bottom: 1px solid var(--border); padding: 0.5rem 0; display: flex; align-items: center; }
         .ticker-label { background: var(--danger); color: white; padding: 0.2rem 0.8rem; font-weight: bold; font-size: 0.8rem; border-radius: 4px; margin-left: 1rem; z-index: 2;}
@@ -58,6 +68,7 @@
         .ticker-item { display: inline-block; padding: 0 2rem; font-size: 1.1rem; color: #ffffff; font-weight: 500; text-shadow: 1px 1px 3px black; }
         .ticker-item a { color: #ffffff; text-decoration: none; transition: 0.2s; }
         @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
+        @keyframes fadeIn { from { opacity: 0.3; } to { opacity: 1; } }
 
         /* Effects (Particles & Weather) */
         #particles-js, #weather-fx { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
@@ -68,22 +79,31 @@
         @keyframes blink-light { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
         /* Modal Settings */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal { background: #1e1e1e; padding: 2rem; border-radius: 12px; width: 90%; max-width: 400px; border: 1px solid rgba(255,255,255,0.1); }
-        .modal h2 { margin-top: 0; color: var(--primary-color); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: var(--surface); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); padding: 2.5rem; border-radius: 24px; width: 90%; max-width: 500px; border: 1px solid var(--border); border-top: 1px solid rgba(255,255,255,0.2); box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto; }
+        .modal::-webkit-scrollbar { width: 4px; }
+        .modal::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+        .modal h2 { margin-top: 0; color: white; font-weight: 600; font-size: 1.5rem; letter-spacing: -0.5px; }
         .setting-group { margin-bottom: 1.5rem; }
-        .setting-group label { display: block; margin-bottom: 0.5rem; color: var(--text-secondary); }
-        .setting-group select, .setting-group input { width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 6px; box-sizing: border-box;}
+        .setting-group label { display: block; margin-bottom: 0.6rem; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; }
+        .setting-group select, .setting-group input:not([type="checkbox"]):not([type="color"]) { width: 100%; padding: 0.8rem 1rem; background: rgba(0,0,0,0.4); border: 1px solid var(--border); color: white; border-radius: 12px; box-sizing: border-box; transition: all 0.3s ease; font-family: inherit; }
+        .setting-group select:focus, .setting-group input:not([type="checkbox"]):not([type="color"]):focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(94, 92, 230, 0.3); background: rgba(0,0,0,0.6); transform: translateY(-2px); }
 
-        .container { flex: 1; padding: 2rem 2rem 6rem 2rem; display: grid; grid-template-columns: 320px 1fr 320px; gap: 1.5rem; max-width: 1800px; margin: 0 auto; width: 100%; align-items: start; }
-        @media (max-width: 1400px) { .container { grid-template-columns: 280px 1fr 280px; padding: 1.5rem 1rem 6rem 1rem; gap: 1rem; } }
+        .container { flex: 1; padding: 1.5rem 2rem 6rem 2rem; display: grid; grid-template-columns: 340px 1fr 340px; gap: 2rem; max-width: 1800px; margin: 0 auto; width: 100%; align-items: start; transition: padding 0.4s ease; }
+        @media (max-width: 1400px) { .container { grid-template-columns: 300px 1fr 300px; padding: 1rem 1rem 6rem 1rem; gap: 1.5rem; } }
         @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } }
         
         /* Mobile Optimization */
         @media (max-width: 768px) {
-            .mac-dock { width: 90%; justify-content: space-around; padding: 0.8rem; gap: 0.5rem; }
-            .dock-greeting { display: none; }
-            .container { padding: 0.8rem 0.8rem 6rem 0.8rem; gap: 1rem; }
+            #top-search-area { padding: 1.5rem 0.8rem 0 0.8rem !important; flex-direction: column; }
+            #top-search-area form { width: 100%; }
+            .sidebar { width: 85%; max-width: 320px; top: 0; bottom: auto; height: 100vh; flex-direction: column; padding: 2rem 1.5rem; justify-content: flex-start; left: -100%; }
+            .sidebar.active { left: 0; }
+            .sidebar .nav-text { display: block !important; }
+            .sidebar .nav-logo { display: flex !important; }
+            .nav-item { padding: 0.8rem 1rem; width: 100%; justify-content: flex-start; margin-bottom: 0.5rem; }
+            .sidebar:hover .nav-item { justify-content: flex-start; }
+            .container { padding: 0.8rem 0.8rem 2rem 0.8rem; gap: 1rem; }
             .widget { padding: 1rem; }
             .clock-large { font-size: 2.5rem; }
             .drag-handle { display: none !important; }
@@ -93,30 +113,35 @@
             .flex-row select, .flex-row button { width: 100%; }
         }
 
-        .col { display: flex; flex-direction: column; gap: 1.5rem; min-height: 200px; }
+        .col { display: flex; flex-direction: column; gap: 2rem; min-height: 200px; }
 
         .widget {
-            background: var(--surface); backdrop-filter: blur(25px); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; flex-direction: column; transition: border-color 0.3s ease, box-shadow 0.3s ease; position: relative; cursor: grab;
-            transform-style: preserve-3d; /* For VanillaTilt */
+            background: var(--surface); backdrop-filter: blur(35px); -webkit-backdrop-filter: blur(35px); border: 1px solid var(--border); border-top: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius); padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4); display: flex; flex-direction: column; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; cursor: grab;
+            transform-style: preserve-3d; /* For VanillaTilt */ overflow: hidden;
         }
-        .widget:hover { border-color: rgba(255,255,255,0.4); box-shadow: 0 0 25px rgba(255,255,255,0.1); }
+        .widget::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent); transform: skewX(-20deg); transition: 0.5s; pointer-events: none; }
+        .widget:hover::before { left: 150%; }
+        .widget:hover { border-color: rgba(255,255,255,0.3); box-shadow: 0 15px 45px rgba(0,0,0,0.6), 0 0 30px rgba(255,255,255,0.05); transform: translateY(-5px); }
         .widget.dragging { opacity: 0.5; border-color: var(--accent); }
         .drag-handle { position: absolute; top: 1.2rem; right: 1.2rem; color: var(--text-muted); cursor: grab; font-size: 1.2rem; display: none; }
         .widget:hover .drag-handle { display: block; }
-        .widget-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; padding-right: 1.5rem; pointer-events: none;}
+        .widget-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: var(--text-muted); margin-bottom: 1.2rem; display: flex; align-items: center; justify-content: space-between; padding-right: 1.5rem; pointer-events: none;}
 
-        input, select, textarea { background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; padding: 0.8rem 1rem; border-radius: 10px; outline: none; width: 100%; box-sizing: border-box; font-family: inherit;}
-        input:focus, textarea:focus { border-color: var(--accent); background: rgba(0,0,0,0.5); }
-        button { font-family: inherit; font-size: 0.95rem; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; }
-        .btn-primary { background: var(--accent); color: white; padding: 0.8rem 1.2rem; }
-        .btn-glass { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); padding: 0.6rem 1rem; }
+        input, select, textarea { background: rgba(0,0,0,0.4); border: 1px solid var(--border); color: white; padding: 0.8rem 1rem; border-radius: 12px; outline: none; width: 100%; box-sizing: border-box; font-family: inherit; transition: all 0.3s ease;}
+        input:focus, textarea:focus { border-color: var(--accent); background: rgba(0,0,0,0.6); box-shadow: 0 0 15px rgba(94, 92, 230, 0.3); transform: translateY(-2px); }
+        button { font-family: inherit; font-size: 0.95rem; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; transition: all 0.3s ease; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), #453ab7); color: white; padding: 0.8rem 1.2rem; box-shadow: 0 4px 15px rgba(94, 92, 230, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(94, 92, 230, 0.6); background: linear-gradient(135deg, var(--accent-hover), #5a4fcf); }
+        .btn-glass { background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.6rem 1rem; backdrop-filter: blur(10px); }
+        .btn-glass:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); transform: translateY(-2px); }
         .btn-icon { background: transparent; color: var(--text-muted); padding: 0.5rem; border-radius: 8px; font-size: 1.2rem; }
+        .btn-icon:hover { color: white; background: rgba(255,255,255,0.1); }
 
         .flex-between { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0;}
-        .flex-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .flex-row { display: flex; gap: 0.8rem; margin-bottom: 0.5rem; }
         
-        .clock-large { font-size: 3rem; font-weight: 700; text-align: center; margin: 0.5rem 0; text-shadow: 0 2px 10px rgba(0,0,0,0.5);}
+        .clock-large { font-size: 3.5rem; font-weight: 700; text-align: center; margin: 0.5rem 0; background: linear-gradient(180deg, #ffffff 0%, #a0a0ab 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 4px 20px rgba(0,0,0,0.5); letter-spacing: -2px; }
         
         /* Calendar */
         .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; font-weight: bold; }
@@ -147,8 +172,25 @@
     
     <!-- Üst Logo ve Sistem Durumu -->
     <div style="padding: 1.5rem 2rem; position: relative; z-index: 100; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; flex-wrap: wrap; gap: 1rem;">
-        <div class="logo" style="font-size: 2rem; font-weight: 700; letter-spacing: -1px; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); cursor: pointer;" onclick="changeBackground()" title="Arkaplanı Değiştir">⌘ AdelS<span style="color: var(--accent);">Jarwis</span></div>
         
+        <!-- Sol Üst: Menü Butonu, Logo ve Profil -->
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <button onclick="toggleSidebar()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; width: 45px; height: 45px; border-radius: 12px; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); transition: 0.3s; flex-shrink: 0;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">☰</button>
+            <div class="logo" style="font-size: 2rem; font-weight: 700; letter-spacing: -1px; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); cursor: pointer; white-space: nowrap;" onclick="changeBackground()" title="Arkaplanı Değiştir">⌘ AdelS<span style="color: var(--accent);">Jarwis</span></div>
+            
+            <div style="width: 1px; height: 35px; background: rgba(255,255,255,0.15); margin: 0 0.5rem; display: none;" id="header-divider"></div>
+            
+            <div style="display: flex; align-items: center; gap: 0.8rem; background: rgba(0,0,0,0.3); padding: 0.4rem 1rem 0.4rem 0.4rem; border-radius: 30px; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px);">
+                <img id="dock-avatar" src="" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); display: none; box-shadow: 0 0 10px rgba(255,255,255,0.1); flex-shrink: 0;">
+                <span id="greeting" style="font-size: 0.95rem; color: white; font-weight: 500; white-space: nowrap;">Yükleniyor...</span>
+            </div>
+            
+            <style>
+                @media (min-width: 768px) { #header-divider { display: block !important; } }
+                @media (max-width: 768px) { .logo { display: none; } }
+            </style>
+        </div>
+
         <!-- Sistem Sağlık Monitörü -->
         <div style="display: flex; gap: 1.5rem; font-size: 0.85rem; font-family: monospace; color: var(--text-muted); background: rgba(0,0,0,0.4); padding: 0.6rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); text-transform: uppercase; letter-spacing: 1px; backdrop-filter: blur(10px);">
             <div style="display: flex; align-items: center; gap: 0.5rem;" title="Ağ ve Donanım Stabil">
@@ -166,15 +208,44 @@
         </div>
     </div>
     
-    <!-- Mac Dock (Replaces Header) -->
-    <div class="mac-dock">
-        <button class="dock-item" onclick="changeBackground()" title="Arkaplanı Değiştir">🖼️</button>
-        <button class="dock-item" onclick="openSettings()" title="Ayarlar">⚙️</button>
-        <button class="dock-item" onclick="toggleDrawer()" title="Gizli Çekmece">🕵️</button>
-        <div class="dock-greeting" id="greeting">Yükleniyor...</div>
-    </div>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    
+    <!-- Left Navigation Sidebar -->
+    <nav class="sidebar">
+        <div class="nav-logo" style="margin-bottom: 2rem; color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; width: 100%; white-space: nowrap;">
+            <div style="font-weight: 700; font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer;" onclick="changeBackground()">
+                <span style="font-size: 1.5rem;">⌘</span>
+                <span class="nav-text">A<span style="color: var(--accent);">Jarwis</span></span>
+            </div>
+            <button onclick="toggleSidebar()" class="nav-text" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; padding: 0; margin-left:auto;">✕</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; padding: 0 0.8rem;">
+            <button class="nav-item" onclick="changeBackground()" title="Arkaplanı Değiştir">
+                <span class="nav-icon">🖼️</span><span class="nav-text">Arkaplan</span>
+            </button>
+            <button class="nav-item" onclick="openSettings()" title="Ayarlar">
+                <span class="nav-icon">⚙️</span><span class="nav-text">Ayarlar</span>
+            </button>
+            <button class="nav-item" onclick="toggleDrawer()" title="Gizli Çekmece">
+                <span class="nav-icon">🕵️</span><span class="nav-text">Gizli Kasa</span>
+            </button>
+        </div>
+    </nav>
 
     <div class="ticker-wrap"><div class="ticker-label">SON DAKİKA</div><div class="ticker" id="ticker-content"></div></div>
+    
+    <!-- Mega Search Bar (Top Area) -->
+    <div style="width: 100%; max-width: 1800px; margin: 0 auto; padding: 1.5rem 2rem 0 2rem; box-sizing: border-box; display: flex; gap: 1rem; align-items: center; z-index: 50; position: relative; transition: padding 0.4s ease;" id="top-search-area">
+        <form action="https://www.google.com/search" target="_blank" style="flex:1; position:relative;">
+            <span style="position:absolute; left:1.5rem; top:50%; transform:translateY(-50%); font-size:1.2rem; opacity:0.8;">🔍</span>
+            <input type="text" name="q" placeholder="Web'de ara..." style="width:100%; padding: 1rem 1rem 1rem 3.5rem; border-radius: 30px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; font-size: 1.1rem; backdrop-filter: blur(15px); transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" onfocus="this.style.background='rgba(0,0,0,0.6)'; this.style.borderColor='var(--accent)';" onblur="this.style.background='rgba(0,0,0,0.4)'; this.style.borderColor='rgba(255,255,255,0.1)';">
+        </form>
+        <form action="https://chatgpt.com/" target="_blank" style="flex:1; position:relative;">
+            <span style="position:absolute; left:1.5rem; top:50%; transform:translateY(-50%); font-size:1.2rem; opacity:0.8; color: var(--ai-accent);">🤖</span>
+            <input type="text" name="q" placeholder="Yapay zekaya (ChatGPT) sor..." style="width:100%; padding: 1rem 1rem 1rem 3.5rem; border-radius: 30px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; font-size: 1.1rem; backdrop-filter: blur(15px); transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" onfocus="this.style.background='rgba(0,0,0,0.6)'; this.style.borderColor='var(--ai-accent)';" onblur="this.style.background='rgba(0,0,0,0.4)'; this.style.borderColor='rgba(255,255,255,0.1)';">
+        </form>
+    </div>
 
     <div class="container" id="dashboard-container">
         <!-- COL 1 -->
@@ -288,29 +359,31 @@
 
         <!-- COL 2 -->
         <div class="col" id="col-2">
-            <div class="widget" id="w-search" draggable="true" style="padding: 1rem;">
-                <div class="drag-handle" style="top:0.8rem">⋮⋮</div>
-                <div style="display: flex; gap: 0.8rem;">
-                    <form action="https://www.google.com/search" target="_blank" style="flex:1; position:relative;">
-                        <span style="position:absolute; left:1rem; top:50%; transform:translateY(-50%);">🔍</span>
-                        <input type="text" name="q" placeholder="Web'de ara..." style="padding-left:2.5rem; border-radius:20px;" required>
-                    </form>
-                    <form action="https://chatgpt.com/" target="_blank" style="flex:1; position:relative;">
-                        <span style="position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--ai-accent);">🤖</span>
-                        <input type="text" name="q" placeholder="Yapay zekaya sor..." style="padding-left:2.5rem; border-radius:20px; border-color:rgba(16,163,127,0.3);" required>
-                    </form>
-                </div>
-            </div>
+
 
             <!-- Görselli Haber Vitrini -->
-            <div class="widget" id="w-news-showcase" draggable="true" style="padding: 0; overflow: hidden; position: relative;">
-                <div class="drag-handle" style="z-index: 10; right: 0.5rem; top: 0.5rem; color: white; background: rgba(0,0,0,0.5); padding: 0.2rem; border-radius: 4px;">⋮⋮</div>
+            <div class="widget" id="w-news-showcase" draggable="true" style="padding: 0; overflow: hidden; position: relative; display: flex; flex-direction: column;">
+                <div class="drag-handle" style="z-index: 20; right: 0.5rem; top: 0.5rem; color: white; background: rgba(0,0,0,0.5); padding: 0.2rem; border-radius: 4px;">⋮⋮</div>
                 
-                <div id="news-carousel" style="width: 100%; height: 380px; position: relative; background: #111;">
+                <!-- Haber Kaynakları (Sekmeler) -->
+                <div style="display: flex; background: rgba(0,0,0,0.5); padding: 0.5rem; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10;">
+                    <button class="news-tab active" onclick="changeNewsCat('tech', event)" style="flex:1; padding:0.4rem; font-size:0.8rem; background:var(--accent); color:white; border:none; border-radius:6px; cursor:pointer;">Teknoloji</button>
+                    <button class="news-tab" onclick="changeNewsCat('gundem', event)" style="flex:1; padding:0.4rem; font-size:0.8rem; background:transparent; color:var(--text-muted); border:none; border-radius:6px; cursor:pointer;">Gündem</button>
+                    <button class="news-tab" onclick="changeNewsCat('ekonomi', event)" style="flex:1; padding:0.4rem; font-size:0.8rem; background:transparent; color:var(--text-muted); border:none; border-radius:6px; cursor:pointer;">Ekonomi</button>
+                </div>
+
+                <div id="news-carousel" style="width: 100%; height: 340px; position: relative; background: #111;" onmouseenter="pauseNews()" onmouseleave="playNews()">
                     <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted);">
                         Haber Vitrini Yükleniyor...
                     </div>
                 </div>
+                
+                <!-- Manuel Kontroller -->
+                <button onclick="prevNews()" style="position: absolute; left: 0.5rem; top: 55%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; z-index: 15; backdrop-filter: blur(5px); display:flex; align-items:center; justify-content:center;">❮</button>
+                <button onclick="nextNews()" style="position: absolute; right: 0.5rem; top: 55%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; z-index: 15; backdrop-filter: blur(5px); display:flex; align-items:center; justify-content:center;">❯</button>
+                
+                <!-- Nokta Göstergeleri -->
+                <div id="news-dots" style="position: absolute; bottom: 0.5rem; width: 100%; display: flex; justify-content: center; gap: 0.4rem; z-index: 15;"></div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
@@ -372,8 +445,7 @@
             <div class="widget" id="w-focus" draggable="true">
                 <div class="drag-handle">⋮⋮</div>
                 <div class="widget-title">
-                    <span>🎧 Odak Modu</span>
-                    <div><button class="btn-icon" style="padding:0.2rem" onclick="switchFocus('pomo')">⏱️</button><button class="btn-icon" style="padding:0.2rem" onclick="switchFocus('breathe')">🌬️</button></div>
+                    <span>⏱️ Odak Modu</span>
                 </div>
                 <div id="view-pomo">
                     <div style="font-size:2.5rem; font-weight:700; text-align:center;" id="pomo-time">25:00</div>
@@ -381,10 +453,6 @@
                         <button class="btn-primary" onclick="togglePomo()" id="pomo-btn">Başlat</button><button class="btn-glass" onclick="resetPomo()">Sıfırla</button>
                     </div>
                 </div>
-                <div id="view-breathe" style="display:none; flex-direction:column; align-items:center; height:100px; justify-content:center;">
-                    <div class="breathe-circle"></div><div id="breathe-text" style="margin-top:1rem; color:var(--success); font-weight:bold;">Nefes Al...</div>
-                </div>
-                <iframe style="border-radius:10px; margin-top:0.5rem;" src="https://open.spotify.com/embed/playlist/37i9dQZF1DWWQRwui0ExPn?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen></iframe>
             </div>
 
             <div class="widget" id="w-notes" draggable="true" style="position: relative;">
@@ -410,15 +478,7 @@
                 <div style="text-align:center; margin-top:0.5rem;"><img id="qr-img" style="display:none; max-width:100px; border-radius:8px;"></div>
             </div>
 
-            <div class="widget" id="w-bookmarks" draggable="true">
-                <div class="drag-handle">⋮⋮</div>
-                <div class="widget-title"><span>📌 Kısayollar</span><button class="btn-icon" onclick="document.getElementById('bm-form').style.display='flex'">+</button></div>
-                <form id="bm-form" style="display: none; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;" onsubmit="event.preventDefault(); addBm();">
-                    <input type="text" id="bm-name" placeholder="Ad" required><input type="url" id="bm-url" placeholder="Link" required>
-                    <div class="flex-row"><button type="button" class="btn-glass" style="flex:1" onclick="document.getElementById('bm-form').style.display='none'">İptal</button><button type="submit" class="btn-primary" style="flex:1">Ekle</button></div>
-                </form>
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem;" id="bm-grid"></div>
-            </div>
+
 
             <!-- Pil Monitörü -->
             <div class="widget" id="w-battery" draggable="true">
@@ -518,38 +578,48 @@
     <!-- HLS.js for Live TV -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <!-- Settings Modal -->
-    <div class="modal-overlay" id="settings-modal">
-        <div class="modal" style="max-width: 450px;">
-            <h2 style="margin-bottom: 1.5rem;">⚙️ Sistem Ayarları</h2>
+    <div class="modal-overlay" id="settings-modal" style="z-index: 999999;">
+        <div class="modal">
+            <h2 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">⚙️ Sistem Ayarları</h2>
+            
             <div class="setting-group">
                 <label>Kullanıcı Adı</label>
                 <input type="text" id="setting-name" placeholder="Adınız">
             </div>
+            
             <div class="setting-group">
-                <label>Arka Plan Teması</label>
-                <select id="setting-theme">
-                    <option value="0">Süper Araba (Klasik)</option>
-                    <option value="1">Doğa Manzarası</option>
-                    <option value="2">Derin Uzay</option>
-                    <option value="3">Gece Şehri</option>
-                </select>
+                <label>Profil Fotoğrafı (URL)</label>
+                <input type="url" id="setting-avatar" placeholder="https://resim-linki.jpg">
             </div>
+
             <div class="setting-group">
-                <label>Arayüz Vurgu Rengi (Neon)</label>
-                <select id="setting-color">
-                    <option value="#5e5ce6">Siber Mor (Varsayılan)</option>
-                    <option value="#10a37f">Matrix Yeşili</option>
-                    <option value="#ff453a">Lazer Kırmızı</option>
-                    <option value="#0a84ff">Neon Mavi</option>
-                    <option value="#ffd60a">Elektrik Sarı</option>
-                </select>
+                <label>Özel Arka Plan (Kelime veya URL)</label>
+                <input type="text" id="setting-bg-custom" placeholder="Örn: cyberpunk, space veya resim linki">
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">Boş bırakırsanız varsayılan arkaplanlar döner. (Temayı dock'taki 🖼️ tuşu ile değiştirebilirsiniz)</div>
             </div>
-            <div class="setting-group" style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; margin-top: 1rem;">
+
+            <div class="setting-group">
+                <label>Dinamik Vurgu Rengi</label>
+                <div style="display: flex; gap: 0.8rem; align-items: center;">
+                    <input type="color" id="setting-color" style="width: 50px; height: 40px; padding: 0; cursor: pointer; border: none; background: transparent;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Sistemin ana rengini özelleştirin (Neon vb.)</span>
+                </div>
+            </div>
+
+            <div class="setting-group" style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                <label style="margin-bottom: 1rem;">👁️ Widget Yöneticisi (Aç/Kapat)</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; font-size: 0.85rem;" id="widget-toggles">
+                    <!-- JS injects checkboxes here -->
+                </div>
+            </div>
+
+            <div class="setting-group" style="display:flex; justify-content:space-between; align-items:center;">
                 <label style="margin:0; font-weight:500;">Görsel Efektler (Parçacıklar)</label>
-                <input type="checkbox" id="setting-particles" style="width:20px; height:20px; cursor:pointer;" checked>
+                <input type="checkbox" id="setting-particles" style="width:20px; height:20px; cursor:pointer; accent-color: var(--accent);" checked>
             </div>
-            <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
-                <button class="btn-glass" style="border-color: var(--danger); color: var(--danger);" onclick="resetDashboard()" title="Tüm verileri ve düzeni sıfırlar">Sıfırla</button>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                <button class="btn-glass" style="border-color: var(--danger); color: var(--danger);" onclick="resetDashboard()" title="Tüm verileri sıfırlar">Sıfırla</button>
                 <button class="btn-glass" style="flex:1" onclick="closeSettings()">İptal</button>
                 <button class="btn-primary" style="flex:1" onclick="saveSettings()">Kaydet</button>
             </div>
@@ -565,40 +635,114 @@
         // BACKGROUNDS
         const bgs = ["https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1920&q=80", "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&w=1920&q=80", "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=80", "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=1920&q=80"];
         let bgIndex = parseInt(localStorage.getItem('ld_bg_index')) || 0;
-        function changeBackground() { bgIndex = (bgIndex + 1) % bgs.length; document.body.style.backgroundImage = `url('${bgs[bgIndex]}')`; localStorage.setItem('ld_bg_index', bgIndex); }
-        document.body.style.backgroundImage = `url('${bgs[bgIndex]}')`;
+        function changeBackground() { 
+            let userSettings = JSON.parse(localStorage.getItem('lifedash_settings')) || {};
+            if(userSettings.bgCustom) {
+                // If custom bg is set, clicking this just rotates default ones and clears custom
+                userSettings.bgCustom = "";
+                localStorage.setItem('lifedash_settings', JSON.stringify(userSettings));
+            }
+            bgIndex = (bgIndex + 1) % bgs.length; 
+            document.body.style.backgroundImage = `url('${bgs[bgIndex]}')`; 
+            localStorage.setItem('ld_bg_index', bgIndex); 
+        }
         
         // OTHERS
+        const availableWidgets = [
+            { id: 'w-yearprogress', name: 'Yıl İlerlemesi' }, { id: 'w-calendar', name: 'Takvim' }, { id: 'w-alarm', name: 'Akıllı Alarm' },
+            { id: 'w-network', name: 'Ağ & IP Monitörü' }, { id: 'w-weather', name: 'Hava Durumu' }, { id: 'w-markets', name: 'Finans & Kripto' },
+            { id: 'w-units', name: 'Birim Çevirici' }, { id: 'w-translator', name: 'Çeviri' }, { id: 'w-search', name: 'Arama Motorları' },
+            { id: 'w-news-showcase', name: 'Haber Vitrini' }, { id: 'w-tasks', name: 'Görevler' }, { id: 'w-decision', name: 'Karar Verici' },
+            { id: 'w-subs', name: 'Sabit Giderler' }, { id: 'w-converter', name: 'Döviz Çevirici' }, { id: 'w-focus', name: 'Odak Modu' },
+            { id: 'w-notes', name: 'Akıllı Notlar' }, { id: 'w-passqr', name: 'Şifre & QR' }, { id: 'w-battery', name: 'Sistem Pili' },
+            { id: 'w-email', name: 'Hızlı E-Posta' }
+        ];
+
         function openSettings() {
-            let userSettings = JSON.parse(localStorage.getItem('lifedash_settings')) || { name: "Adel", color: "#5e5ce6", particles: true };
-            document.getElementById('setting-name').value = userSettings.name;
+            let userSettings = JSON.parse(localStorage.getItem('lifedash_settings')) || { name: "Adel", color: "#5e5ce6", particles: true, hiddenWidgets: [] };
+            document.getElementById('setting-name').value = userSettings.name || "Adel";
+            document.getElementById('setting-avatar').value = userSettings.avatar || "";
+            document.getElementById('setting-bg-custom').value = userSettings.bgCustom || "";
             document.getElementById('setting-color').value = userSettings.color || "#5e5ce6";
             document.getElementById('setting-particles').checked = userSettings.particles !== false;
+            
+            // Render widget toggles
+            const tDiv = document.getElementById('widget-toggles');
+            tDiv.innerHTML = availableWidgets.map(w => `
+                <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; background:rgba(0,0,0,0.3); padding:0.6rem 0.8rem; border-radius:10px; transition:0.3s; border: 1px solid transparent;" onmouseover="this.style.borderColor='rgba(255,255,255,0.2)'" onmouseout="this.style.borderColor='transparent'">
+                    <input type="checkbox" class="widget-toggle-cb" data-id="${w.id}" style="width:16px; height:16px; cursor:pointer; accent-color:var(--accent);" ${!(userSettings.hiddenWidgets || []).includes(w.id) ? 'checked' : ''}>
+                    ${w.name}
+                </label>
+            `).join('');
+
             document.getElementById('settings-modal').style.display='flex';
         }
         function closeSettings() { document.getElementById('settings-modal').style.display='none'; }
+        
         function saveSettings() { 
             const n = document.getElementById('setting-name').value || "Adel";
-            const t = parseInt(document.getElementById('setting-theme').value);
+            const a = document.getElementById('setting-avatar').value.trim();
+            const bgC = document.getElementById('setting-bg-custom').value.trim();
             const c = document.getElementById('setting-color').value;
             const p = document.getElementById('setting-particles').checked;
             
+            const hiddenWidgets = [];
+            document.querySelectorAll('.widget-toggle-cb').forEach(cb => {
+                if(!cb.checked) hiddenWidgets.push(cb.getAttribute('data-id'));
+            });
+
             let userSettings = JSON.parse(localStorage.getItem('lifedash_settings')) || {};
             userSettings.name = n;
+            userSettings.avatar = a;
+            userSettings.bgCustom = bgC;
             userSettings.color = c;
             userSettings.particles = p;
+            userSettings.hiddenWidgets = hiddenWidgets;
             localStorage.setItem('lifedash_settings', JSON.stringify(userSettings));
             
-            // Apply new color
-            document.documentElement.style.setProperty('--accent', c);
-            
-            // Toggle particles display
-            const pDiv = document.getElementById('particles-js');
-            if(pDiv) pDiv.style.display = p ? 'block' : 'none';
-            
-            bgIndex = t; document.body.style.backgroundImage = `url('${bgs[bgIndex]}')`; localStorage.setItem('ld_bg_index', bgIndex);
+            applySettings(userSettings);
             closeSettings();
         }
+
+        function applySettings(settings) {
+            // Color
+            if(settings.color) document.documentElement.style.setProperty('--accent', settings.color);
+            
+            // Particles
+            const pDiv = document.getElementById('particles-js');
+            if(pDiv) pDiv.style.display = settings.particles !== false ? 'block' : 'none';
+
+            // Background
+            if(settings.bgCustom) {
+                let bgUrl = settings.bgCustom;
+                if(!bgUrl.startsWith('http')) {
+                    // Treat as keyword
+                    bgUrl = `https://source.unsplash.com/1920x1080/?${encodeURIComponent(bgUrl)}`;
+                }
+                document.body.style.backgroundImage = `url('${bgUrl}')`;
+            } else {
+                document.body.style.backgroundImage = `url('${bgs[bgIndex]}')`;
+            }
+
+            // Avatar
+            const avImg = document.getElementById('dock-avatar');
+            if(settings.avatar) {
+                avImg.src = settings.avatar;
+                avImg.style.display = 'block';
+            } else {
+                avImg.style.display = 'none';
+            }
+
+            // Widgets
+            const hidden = settings.hiddenWidgets || [];
+            availableWidgets.forEach(w => {
+                const el = document.getElementById(w.id);
+                if(el) {
+                    el.style.display = hidden.includes(w.id) ? 'none' : 'flex';
+                }
+            });
+        }
+
         function resetDashboard() {
             if(confirm("Tüm görevleriniz, notlarınız ve özel ayarlarınız kalıcı olarak SİLİNECEKTİR. Onaylıyor musunuz?")) {
                 localStorage.clear();
@@ -607,8 +751,9 @@
         }
 
         // INIT LOAD SETTINGS
-        const initialSet = JSON.parse(localStorage.getItem('lifedash_settings')) || { color: "#5e5ce6", particles: true };
-        if(initialSet.color) document.documentElement.style.setProperty('--accent', initialSet.color);
+        const initialSet = JSON.parse(localStorage.getItem('lifedash_settings')) || { color: "#5e5ce6", particles: true, hiddenWidgets: [] };
+        applySettings(initialSet);
+        
         setTimeout(() => {
             const pDiv = document.getElementById('particles-js');
             if(pDiv) pDiv.style.display = initialSet.particles !== false ? 'block' : 'none';
@@ -624,6 +769,7 @@
                 const ov = document.createElement('div'); ov.style.cssText="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,69,58,0.4);z-index:9999;pointer-events:none;"; document.body.appendChild(ov); setTimeout(()=>document.body.removeChild(ov), 3000);
             }
         }
+        let currentSettings = JSON.parse(localStorage.getItem('lifedash_settings')) || { name: "Adel" };
         setInterval(()=>{
             const n = new Date(); const tStr = n.toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'});
             document.getElementById('clock').textContent = tStr;
@@ -648,12 +794,22 @@
             // Greeting Update
             const h = n.getHours();
             let g = 'İyi Geceler'; if (h>=6 && h<12) g = 'Günaydın'; else if (h>=12 && h<18) g = 'İyi Günler'; else if (h>=18 && h<22) g = 'İyi Akşamlar';
-            let currentSettings = JSON.parse(localStorage.getItem('lifedash_settings')) || { name: "Adel" };
+            currentSettings = JSON.parse(localStorage.getItem('lifedash_settings')) || { name: "Adel" }; // Keep simple
             document.getElementById('greeting').textContent = `${g}, ${currentSettings.name}`;
         }, 1000);
 
         // CALENDAR
         let cDate = new Date();
+        const trHolidays = {
+            "01-01": "Yılbaşı", "04-23": "23 Nisan", "05-01": "1 Mayıs", 
+            "05-19": "19 Mayıs", "07-15": "15 Temmuz", "08-30": "30 Ağustos", "10-29": "29 Ekim"
+        };
+        // 2026 yılı Dini Bayramlar (Tahmini)
+        const trDiniHolidays2026 = {
+            "03-19": "Ramazan Bayramı (Arife)", "03-20": "Ramazan Bayramı 1. Gün", "03-21": "Ramazan Bayramı 2. Gün", "03-22": "Ramazan Bayramı 3. Gün",
+            "05-26": "Kurban Bayramı (Arife)", "05-27": "Kurban Bayramı 1. Gün", "05-28": "Kurban Bayramı 2. Gün", "05-29": "Kurban Bayramı 3. Gün", "05-30": "Kurban Bayramı 4. Gün"
+        };
+
         function rCal() {
             const y = cDate.getFullYear(); const m = cDate.getMonth();
             const fDay = new Date(y, m, 1).getDay(); const dInM = new Date(y, m + 1, 0).getDate();
@@ -664,8 +820,28 @@
             for(let i=0; i<sOff; i++) g.innerHTML += `<div></div>`;
             const t = new Date();
             for(let i=1; i<=dInM; i++) {
-                let cl = 'cal-day'; if(y===t.getFullYear() && m===t.getMonth() && i===t.getDate()) cl += ' today';
-                g.innerHTML += `<div class="${cl}">${i}</div>`;
+                let cl = 'cal-day'; 
+                const mStr = (m + 1).toString().padStart(2, '0');
+                const dStr = i.toString().padStart(2, '0');
+                const fixedHoliday = trHolidays[`${mStr}-${dStr}`];
+                const diniHoliday = (y === 2026) ? trDiniHolidays2026[`${mStr}-${dStr}`] : null;
+                const holidayName = fixedHoliday || diniHoliday;
+
+                let extraStyle = "";
+                let titleAttr = "";
+                
+                if(holidayName) {
+                    cl += ' holiday';
+                    extraStyle = "border-bottom: 2px solid var(--danger); color: var(--danger); font-weight: bold;";
+                    titleAttr = `title="${holidayName}"`;
+                }
+                
+                if(y===t.getFullYear() && m===t.getMonth() && i===t.getDate()) {
+                    cl += ' today';
+                    extraStyle = ""; // today class handles the style
+                }
+                
+                g.innerHTML += `<div class="${cl}" style="${extraStyle}" ${titleAttr}>${i}</div>`;
             }
         }
         function changeMonth(d) { cDate.setMonth(cDate.getMonth() + d); rCal(); } rCal();
@@ -675,15 +851,8 @@
         
         function makeWeatherFx(type) {
             const fx = document.getElementById('weather-fx'); fx.innerHTML = '';
-            if(type === 'rain') {
-                for(let i=0; i<150; i++) {
-                    let d = document.createElement('div'); d.className = 'raindrop';
-                    d.style.left = Math.random() * 100 + 'vw';
-                    d.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
-                    d.style.animationDelay = Math.random() * 2 + 's';
-                    fx.appendChild(d);
-                }
-            } else if(type === 'snow') {
+            // Yağmur efekti tamamen kaldırıldı. (type === 'rain' kontrolü atlanıyor)
+            if(type === 'snow') {
                 for(let i=0; i<100; i++) {
                     let s = document.createElement('div'); s.className = 'snowflake';
                     s.style.left = Math.random() * 100 + 'vw';
@@ -746,40 +915,103 @@
         fetchAPIs(); setInterval(fetchAPIs, 300000);
 
         // NEWS SHOWCASE (Visual Carousel)
-        let newsItems = []; let currNewsIdx = 0;
-        async function fetchNewsShowcase() {
+        let newsItems = []; 
+        let currNewsIdx = 0;
+        let newsInterval;
+        let isNewsPaused = false;
+        let currentNewsCat = 'tech';
+        
+        const newsSources = {
+            'tech': { url: 'https://www.donanimhaber.com/rss/anasayfa', label: 'TEKNOLOJİ', color: 'var(--accent)' },
+            'gundem': { url: 'https://www.sozcu.com.tr/rss/gundem.xml', label: 'GÜNDEM', color: 'var(--danger)' },
+            'ekonomi': { url: 'https://www.sozcu.com.tr/rss/ekonomi.xml', label: 'EKONOMİ', color: 'var(--success)' }
+        };
+
+        async function fetchNewsShowcase(category = 'tech') {
+            document.getElementById('news-carousel').innerHTML = '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:var(--text-muted);">Haber Vitrini Yükleniyor...</div>';
+            clearInterval(newsInterval);
+            newsItems = []; currNewsIdx = 0; currentNewsCat = category;
+            
             try {
-                // Fetching from a reliable visual news source (DonanımHaber includes images in enclosures)
-                const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.donanimhaber.com/rss/anasayfa');
+                const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${newsSources[category].url}`);
                 const data = await res.json();
+                
                 if(data.items && data.items.length > 0) {
-                    newsItems = data.items.filter(i => i.enclosure && i.enclosure.link).slice(0, 8);
+                    // Filter items that have an enclosure link or extract from content
+                    newsItems = data.items.map(item => {
+                        let img = item.enclosure?.link;
+                        // Sözcü or others might use content/description for images
+                        if(!img) {
+                            const match = (item.content || item.description || '').match(/src="([^"]+)"/);
+                            if(match) img = match[1];
+                        }
+                        return { ...item, img: img || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80' };
+                    }).filter(i => i.title).slice(0, 8);
+
                     if(newsItems.length > 0) {
                         renderNewsSlide();
-                        setInterval(() => { currNewsIdx = (currNewsIdx + 1) % newsItems.length; renderNewsSlide(); }, 6000);
+                        startNewsInterval();
                     } else {
-                        document.getElementById('news-carousel').innerHTML = '<div style="padding:2rem;color:white;">Haberlerde görsel bulunamadı.</div>';
+                        document.getElementById('news-carousel').innerHTML = '<div style="padding:2rem;color:white;">Haber bulunamadı.</div>';
                     }
                 }
-            } catch(e) {}
+            } catch(e) {
+                document.getElementById('news-carousel').innerHTML = '<div style="padding:2rem;color:var(--danger);">Haberler çekilemedi. API Hatası.</div>';
+            }
         }
+
         function renderNewsSlide() {
             if(newsItems.length === 0) return;
             const item = newsItems[currNewsIdx];
-            const img = item.enclosure.link;
+            const source = newsSources[currentNewsCat];
+            const desc = (item.description || '').replace(/<[^>]*>?/gm, '').substring(0, 100) + '...'; // Strip HTML
+
             document.getElementById('news-carousel').innerHTML = `
-                <a href="${item.link}" target="_blank" style="display:block; width:100%; height:100%; text-decoration:none; animation: fadeIn 1s;">
-                    <div style="width:100%; height:100%; background: url('${img}') center/cover; position:relative;">
-                        <div style="position:absolute; bottom:0; left:0; width:100%; background: linear-gradient(transparent, rgba(0,0,0,0.95)); padding: 3rem 1.5rem 1.5rem 1.5rem; box-sizing: border-box;">
-                            <span style="background: var(--accent); color: white; padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.8rem; display: inline-block;">GÜNDEM</span>
-                            <h2 style="color: white; margin: 0; font-size: 1.4rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); line-height: 1.4;">${item.title}</h2>
+                <a href="${item.link}" target="_blank" style="display:block; width:100%; height:100%; text-decoration:none; animation: fadeIn 0.8s;">
+                    <div style="width:100%; height:100%; background: url('${item.img}') center/cover; position:relative;">
+                        <div style="position:absolute; bottom:0; left:0; width:100%; background: linear-gradient(transparent, rgba(0,0,0,0.95) 20%, rgba(0,0,0,1)); padding: 4rem 1.5rem 2rem 1.5rem; box-sizing: border-box; backdrop-filter: blur(2px);">
+                            <span style="background: ${source.color}; color: white; padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.75rem; font-weight: bold; margin-bottom: 0.8rem; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">${source.label}</span>
+                            <h2 style="color: white; margin: 0 0 0.5rem 0; font-size: 1.3rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); line-height: 1.3;">${item.title}</h2>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${desc}</p>
                         </div>
                     </div>
                 </a>
-                <style>@keyframes fadeIn { from { opacity: 0.5; } to { opacity: 1; } }</style>
+
             `;
+            
+            // Render dots
+            const dotsDiv = document.getElementById('news-dots');
+            if(dotsDiv) {
+                dotsDiv.innerHTML = newsItems.map((_, idx) => `
+                    <div onclick="goToNews(${idx})" style="width: 8px; height: 8px; border-radius: 50%; background: ${idx === currNewsIdx ? 'white' : 'rgba(255,255,255,0.3)'}; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.5);"></div>
+                `).join('');
+            }
         }
-        fetchNewsShowcase();
+
+        function startNewsInterval() {
+            clearInterval(newsInterval);
+            newsInterval = setInterval(() => {
+                if(!isNewsPaused) { currNewsIdx = (currNewsIdx + 1) % newsItems.length; renderNewsSlide(); }
+            }, 5000);
+        }
+
+        function pauseNews() { isNewsPaused = true; }
+        function playNews() { isNewsPaused = false; }
+        
+        function nextNews() { currNewsIdx = (currNewsIdx + 1) % newsItems.length; renderNewsSlide(); startNewsInterval(); }
+        function prevNews() { currNewsIdx = (currNewsIdx - 1 + newsItems.length) % newsItems.length; renderNewsSlide(); startNewsInterval(); }
+        function goToNews(idx) { currNewsIdx = idx; renderNewsSlide(); startNewsInterval(); }
+
+        function changeNewsCat(cat, event) {
+            // Update active button UI
+            document.querySelectorAll('.news-tab').forEach(btn => {
+                btn.style.background = 'transparent'; btn.style.color = 'var(--text-muted)'; btn.classList.remove('active');
+            });
+            event.target.style.background = 'var(--accent)'; event.target.style.color = 'white'; event.target.classList.add('active');
+            fetchNewsShowcase(cat);
+        }
+
+        fetchNewsShowcase('tech');
 
         // UNITS, PASS, QR
         function convUnit() {
@@ -823,10 +1055,6 @@
             } 
         }
         function resetPomo(){ clearInterval(pInt); pRun=false; pTime=25*60; document.getElementById('pomo-btn').textContent='Başlat'; document.getElementById('zen-mode-overlay').style.display='none'; uPomo(); }
-        let bInt; function switchFocus(m){
-            if(m==='pomo'){document.getElementById('view-pomo').style.display='block'; document.getElementById('view-breathe').style.display='none'; clearInterval(bInt);}
-            else{document.getElementById('view-pomo').style.display='none'; document.getElementById('view-breathe').style.display='flex'; let i=true; bInt=setInterval(()=>{i=!i; document.getElementById('breathe-text').textContent=i?"Nefes Al...":"Nefes Ver..."; document.getElementById('breathe-text').style.color=i?"var(--success)":"var(--accent)";},4000);}
-        }
 
         // DECISION MAKER (Rulet)
         function spinDecision() {
@@ -877,10 +1105,6 @@
         function addTask(){ const v=document.getElementById('task-in').value.trim(); if(v){ts.push({t:v,c:false}); document.getElementById('task-in').value=''; rL(ts,'task-list',lsT);} }
         rL(ts,'task-list',lsT);
 
-        let bms = JSON.parse(localStorage.getItem('ld_bms'))||[{n:"YouTube",u:"https://youtube.com"}];
-        function rBm(){ const g=document.getElementById('bm-grid'); g.innerHTML=''; bms.forEach((b,i)=>{let d="google.com";try{d=new URL(b.u).hostname;}catch(e){} g.innerHTML+=`<a href="${b.u}" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;text-decoration:none;color:var(--text-muted);font-size:0.75rem;background:rgba(0,0,0,0.2);padding:0.5rem;border-radius:8px;position:relative;"><button onclick="event.preventDefault();bms.splice(${i},1);rBm();" style="position:absolute;top:-5px;right:-5px;background:var(--danger);color:white;border:none;border-radius:50%;width:16px;height:16px;font-size:10px;cursor:pointer;">X</button><img src="https://www.google.com/s2/favicons?domain=${d}&sz=64" style="width:32px;height:32px;border-radius:8px;background:white;padding:2px;"><span style="max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${b.n}</span></a>`;}); localStorage.setItem('ld_bms',JSON.stringify(bms)); }
-        function addBm(){ const n=document.getElementById('bm-name').value; let u=document.getElementById('bm-url').value; if(n&&u){if(!u.includes('://'))u='https://'+u; bms.push({n,u}); rBm(); document.getElementById('bm-form').style.display='none';} } rBm();
-
         // TRANSLATOR
         let transTO;
         function doTranslate() {
@@ -905,6 +1129,14 @@
             const sub = encodeURIComponent(document.getElementById('mail-sub').value);
             const body = encodeURIComponent(document.getElementById('mail-body').value);
             window.location.href = `mailto:${to}?subject=${sub}&body=${body}`;
+        }
+
+        // SIDEBAR TOGGLE
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
         }
 
         // SLIDE-OUT DRAWER & AGENT TOOLS
