@@ -126,10 +126,11 @@
         .widget.dragging { opacity: 0.5; border-color: var(--accent); }
         .drag-handle { position: absolute; top: 1.2rem; right: 1.2rem; color: var(--text-muted); cursor: grab; font-size: 1.2rem; display: none; }
         .widget:hover .drag-handle { display: block; }
-        .widget-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: var(--text-muted); margin-bottom: 1.2rem; display: flex; align-items: center; justify-content: space-between; padding-right: 1.5rem; pointer-events: none;}
+        .widget-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: var(--text-muted); margin-bottom: 1.2rem; display: flex; align-items: center; justify-content: space-between; padding-right: 1.5rem; }
+        .widget-title span { pointer-events: none; }
 
-        input, select, textarea { background: rgba(0,0,0,0.4); border: 1px solid var(--border); color: white; padding: 0.8rem 1rem; border-radius: 12px; outline: none; width: 100%; box-sizing: border-box; font-family: inherit; transition: all 0.3s ease;}
-        input:focus, textarea:focus { border-color: var(--accent); background: rgba(0,0,0,0.6); box-shadow: 0 0 15px rgba(94, 92, 230, 0.3); transform: translateY(-2px); }
+        input:not([type="checkbox"]):not([type="color"]), select, textarea { background: rgba(0,0,0,0.4); border: 1px solid var(--border); color: white; padding: 0.8rem 1rem; border-radius: 12px; outline: none; width: 100%; box-sizing: border-box; font-family: inherit; transition: all 0.3s ease;}
+        input:not([type="checkbox"]):not([type="color"]):focus, textarea:focus { border-color: var(--accent); background: rgba(0,0,0,0.6); box-shadow: 0 0 15px rgba(94, 92, 230, 0.3); transform: translateY(-2px); }
         button { font-family: inherit; font-size: 0.95rem; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; transition: all 0.3s ease; }
         .btn-primary { background: linear-gradient(135deg, var(--accent), #453ab7); color: white; padding: 0.8rem 1.2rem; box-shadow: 0 4px 15px rgba(94, 92, 230, 0.4); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(94, 92, 230, 0.6); background: linear-gradient(135deg, var(--accent-hover), #5a4fcf); }
@@ -154,9 +155,10 @@
         /* Lists */
         .list-wrap { max-height: 180px; overflow-y: auto; margin-bottom: 1rem; }
         .list-item { display: flex; align-items: center; gap: 0.8rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .list-text { flex: 1; font-size: 0.95rem; }
+        .list-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+        .list-text { flex: 1; font-size: 0.95rem; color: white; word-break: break-word; }
         .list-text.done { text-decoration: line-through; color: var(--text-muted); }
-        .list-del { color: var(--danger); cursor: pointer; border:none; background:none; opacity: 0; }
+        .list-del { color: var(--danger); cursor: pointer; border:none; background:none; opacity: 0; font-size: 1.2rem; }
         .list-item:hover .list-del { opacity: 1; }
 
         /* Breathe Anim */
@@ -176,12 +178,11 @@
         <!-- Sol Üst: Menü Butonu, Logo ve Profil -->
         <div style="display: flex; align-items: center; gap: 1.5rem;">
             <button onclick="toggleSidebar()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; width: 45px; height: 45px; border-radius: 12px; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); transition: 0.3s; flex-shrink: 0;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">☰</button>
-            <div class="logo" style="font-size: 2rem; font-weight: 700; letter-spacing: -1px; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); cursor: pointer; white-space: nowrap;" onclick="changeBackground()" title="Arkaplanı Değiştir">⌘ AdelS<span style="color: var(--accent);">Jarwis</span></div>
+            <div class="logo" id="brand-name-top" style="font-size: 2rem; font-weight: 700; letter-spacing: -1px; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); cursor: pointer; white-space: nowrap;" onclick="changeBackground()" title="Arkaplanı Değiştir">⌘ AdelS<span style="color: var(--accent);">Jarwis</span></div>
             
             <div style="width: 1px; height: 35px; background: rgba(255,255,255,0.15); margin: 0 0.5rem; display: none;" id="header-divider"></div>
             
-            <div style="display: flex; align-items: center; gap: 0.8rem; background: rgba(0,0,0,0.3); padding: 0.4rem 1rem 0.4rem 0.4rem; border-radius: 30px; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px);">
-                <img id="dock-avatar" src="" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); display: none; box-shadow: 0 0 10px rgba(255,255,255,0.1); flex-shrink: 0;">
+            <div id="profile-badge" style="display: flex; align-items: center; gap: 0.8rem; background: rgba(0,0,0,0.3); padding: 0.4rem 1.2rem; border-radius: 30px; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px);">
                 <span id="greeting" style="font-size: 0.95rem; color: white; font-weight: 500; white-space: nowrap;">Yükleniyor...</span>
             </div>
             
@@ -215,7 +216,7 @@
         <div class="nav-logo" style="margin-bottom: 2rem; color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; width: 100%; white-space: nowrap;">
             <div style="font-weight: 700; font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer;" onclick="changeBackground()">
                 <span style="font-size: 1.5rem;">⌘</span>
-                <span class="nav-text">A<span style="color: var(--accent);">Jarwis</span></span>
+                <span class="nav-text" id="brand-name-side">A<span style="color: var(--accent);">Jarwis</span></span>
             </div>
             <button onclick="toggleSidebar()" class="nav-text" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; padding: 0; margin-left:auto;">✕</button>
         </div>
@@ -360,6 +361,18 @@
         <!-- COL 2 -->
         <div class="col" id="col-2">
 
+            <!-- Canlı Konum Haritası -->
+            <div class="widget" id="w-map" draggable="true" style="padding: 0; overflow: hidden; height: 300px; position: relative;">
+                <div class="drag-handle" style="z-index: 10; left: 1rem; top: 1rem; color: white; background: rgba(0,0,0,0.5); padding: 0.2rem; border-radius: 4px;">⋮⋮</div>
+                <div style="position: absolute; top: 1rem; right: 1rem; z-index: 10; background: rgba(0,0,0,0.6); padding: 0.4rem 0.6rem; border-radius: 20px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); margin: 0; display: flex; align-items: center; gap: 0.5rem; transition: background 0.3s;" onmouseover="this.style.background='rgba(0,0,0,0.8)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">
+                    <span style="font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Canlı Konum" onclick="updateMapLocation()">📍</span>
+                    <button class="btn-icon" onclick="updateMapLocation()" style="font-size: 0.9rem; padding: 0 0 0 0.5rem; border-left: 1px solid rgba(255,255,255,0.2); border-radius: 0; display: flex; align-items: center; justify-content: center;" title="Konumu Yenile">🔄</button>
+                </div>
+                <div id="map-container" style="width: 100%; height: 100%; background: #111; display: flex; align-items: center; justify-content: center;">
+                    <button class="btn-primary" id="map-init-btn" onclick="updateMapLocation()">Konumu Bul</button>
+                    <iframe id="google-map-frame" width="100%" height="100%" frameborder="0" style="border:0; display:none; filter: invert(90%) hue-rotate(180deg);" allowfullscreen></iframe>
+                </div>
+            </div>
 
             <!-- Görselli Haber Vitrini -->
             <div class="widget" id="w-news-showcase" draggable="true" style="padding: 0; overflow: hidden; position: relative; display: flex; flex-direction: column;">
@@ -384,6 +397,26 @@
                 
                 <!-- Nokta Göstergeleri -->
                 <div id="news-dots" style="position: absolute; bottom: 0.5rem; width: 100%; display: flex; justify-content: center; gap: 0.4rem; z-index: 15;"></div>
+            </div>
+
+            <!-- Yapay Zeka Prompt Kütüphanesi -->
+            <div class="widget" id="w-prompts" draggable="true" style="position: relative;">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">
+                    <span>🧠 AI Prompt Arşivi</span>
+                    <button class="btn-icon" onclick="document.getElementById('prompt-form').style.display='flex'" style="padding: 0.2rem 0.5rem; font-size: 1rem;">+</button>
+                </div>
+                
+                <form id="prompt-form" style="display: none; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;" onsubmit="event.preventDefault(); addPrompt();">
+                    <input type="text" id="pr-name" placeholder="Başlık (Örn: Çevirmen)" required style="padding: 0.5rem; font-size: 0.85rem;">
+                    <textarea id="pr-text" placeholder="Promptunuz..." required style="min-height: 60px; padding: 0.5rem; font-size: 0.85rem;"></textarea>
+                    <div class="flex-row">
+                        <button type="button" class="btn-glass" style="flex:1; padding: 0.4rem;" onclick="document.getElementById('prompt-form').style.display='none'">İptal</button>
+                        <button type="submit" class="btn-primary" style="flex:1; padding: 0.4rem;">Kaydet</button>
+                    </div>
+                </form>
+                
+                <div class="list-wrap" id="prompt-list" style="max-height: 180px;"></div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
@@ -448,18 +481,30 @@
                     <span>⏱️ Odak Modu</span>
                 </div>
                 <div id="view-pomo">
-                    <div style="font-size:2.5rem; font-weight:700; text-align:center;" id="pomo-time">25:00</div>
+                    <div style="font-size:2.5rem; font-weight:700; text-align:center; background: linear-gradient(180deg, #ffffff 0%, #a0a0ab 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;" id="pomo-time">25:00</div>
                     <div style="display:flex; justify-content:center; gap:0.5rem; margin:0.5rem 0 1rem 0;">
-                        <button class="btn-primary" onclick="togglePomo()" id="pomo-btn">Başlat</button><button class="btn-glass" onclick="resetPomo()">Sıfırla</button>
+                        <button class="btn-primary" onclick="togglePomo()" id="pomo-btn" style="padding: 0.6rem 1.5rem;">Başlat</button>
+                        <button class="btn-glass" onclick="resetPomo()">Sıfırla</button>
                     </div>
                 </div>
             </div>
 
-            <div class="widget" id="w-notes" draggable="true" style="position: relative;">
+            <div class="widget" id="w-notes" draggable="true" style="position: relative; display: flex; flex-direction: column;">
                 <div class="drag-handle">⋮⋮</div>
-                <div class="widget-title">📝 Akıllı Notlar</div>
-                <textarea id="note-area" style="min-height: 120px; resize: vertical; background: rgba(0,0,0,0.2); border: none;" placeholder="Not al veya mikrofona tıkla..."></textarea>
-                <button id="mic-btn" onclick="toggleDictation()" style="position: absolute; right: 1.5rem; bottom: 1.5rem; background: rgba(255,255,255,0.1); border-radius: 50%; width: 40px; height: 40px; border:none; color:white; cursor:pointer;">🎙️</button>
+                <div class="widget-title" style="margin-bottom: 0.5rem; justify-content: space-between;">
+                    <span>📝 Akıllı Notlar</span>
+                    <button type="button" class="btn-icon" onclick="window.clearNotes()" style="font-size: 0.9rem; padding: 0.2rem 0.5rem; z-index: 10;" title="Notları Temizle">🗑️</button>
+                </div>
+                
+                <div style="position: relative; flex: 1; display: flex; flex-direction: column;">
+                    <textarea id="note-area" style="flex: 1; min-height: 140px; resize: vertical; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1rem 1rem 3rem 1rem; color: white; font-size: 0.95rem; line-height: 1.5; transition: border-color 0.3s;" placeholder="Not almak için buraya yazın veya mikrofona tıklayın..."></textarea>
+                    
+                    <!-- Mikrafon ve Dinleme Durumu (Absolute konumlandırma ile içeri yerleştirilmiş) -->
+                    <div style="position: absolute; right: 0.5rem; bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span id="dict-status" style="font-size: 0.75rem; color: var(--danger); font-weight: bold; opacity: 0; transition: opacity 0.3s;">Dinliyor...</span>
+                        <button id="mic-btn" onclick="toggleDictation()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 50%; width: 36px; height: 36px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.3);" title="Sesle Yazdır (Dikte)">🎙️</button>
+                    </div>
+                </div>
             </div>
 
             <div class="widget" id="w-passqr" draggable="true">
@@ -507,11 +552,18 @@
         </div>
     </div>
 
-    <!-- Gizli Çekmece (Slide-out Drawer) -->
-    <div id="side-drawer" style="position: fixed; top: 0; right: -400px; width: 350px; height: 100vh; background: rgba(15,15,20,0.95); backdrop-filter: blur(20px); border-left: 1px solid var(--border); transition: right 0.3s ease; z-index: 999; padding: 2rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto;">
+    <!-- Gizli Çekmece (Slide-out Drawer) / Terminal Eklendi -->
+    <div id="side-drawer" style="position: fixed; top: 0; right: -450px; width: 400px; height: 100vh; background: rgba(15,15,20,0.95); backdrop-filter: blur(20px); border-left: 1px solid var(--border); transition: right 0.3s ease; z-index: 999; padding: 2rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto;">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
-            <h2 style="margin: 0; color: var(--accent); font-weight: 600; font-size: 1.2rem;">🕵️ Gizli Bölme</h2>
+            <h2 style="margin: 0; color: var(--accent); font-weight: 600; font-size: 1.2rem;">🕵️ Sistem Terminali & Gizli Kasa</h2>
             <button onclick="toggleDrawer(true)" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; transition: 0.2s;">✕</button>
+        </div>
+
+        <!-- Jarvis Terminali -->
+        <div class="widget" style="margin: 0; padding: 1rem; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.05); box-shadow: none;">
+            <div class="widget-title" style="margin-bottom:0.5rem; font-size:0.8rem;">💻 Komut Satırı (CLI)</div>
+            <div id="terminal-out" style="height: 120px; overflow-y: auto; font-family: monospace; font-size: 0.8rem; color: var(--success); margin-bottom: 0.5rem; background: rgba(0,0,0,0.5); padding: 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">Sistem Hazır. Komut girin (Örn: /sifre, /temizle, /ping, /help).<br></div>
+            <input type="text" id="terminal-in" placeholder="Komut yazın..." style="font-family: monospace; font-size: 0.85rem; padding: 0.5rem;" onkeypress="if(event.key === 'Enter') executeTerminal()">
         </div>
 
         <!-- Patron Tuşu -->
@@ -588,11 +640,6 @@
             </div>
             
             <div class="setting-group">
-                <label>Profil Fotoğrafı (URL)</label>
-                <input type="url" id="setting-avatar" placeholder="https://resim-linki.jpg">
-            </div>
-
-            <div class="setting-group">
                 <label>Özel Arka Plan (Kelime veya URL)</label>
                 <input type="text" id="setting-bg-custom" placeholder="Örn: cyberpunk, space veya resim linki">
                 <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">Boş bırakırsanız varsayılan arkaplanlar döner. (Temayı dock'taki 🖼️ tuşu ile değiştirebilirsiniz)</div>
@@ -652,7 +699,7 @@
             { id: 'w-yearprogress', name: 'Yıl İlerlemesi' }, { id: 'w-calendar', name: 'Takvim' }, { id: 'w-alarm', name: 'Akıllı Alarm' },
             { id: 'w-network', name: 'Ağ & IP Monitörü' }, { id: 'w-weather', name: 'Hava Durumu' }, { id: 'w-markets', name: 'Finans & Kripto' },
             { id: 'w-units', name: 'Birim Çevirici' }, { id: 'w-translator', name: 'Çeviri' }, { id: 'w-search', name: 'Arama Motorları' },
-            { id: 'w-news-showcase', name: 'Haber Vitrini' }, { id: 'w-tasks', name: 'Görevler' }, { id: 'w-decision', name: 'Karar Verici' },
+            { id: 'w-news-showcase', name: 'Haber Vitrini' }, { id: 'w-map', name: 'Canlı Harita' }, { id: 'w-prompts', name: 'Prompt Kütüphanesi' }, { id: 'w-tasks', name: 'Görevler' }, { id: 'w-decision', name: 'Karar Verici' },
             { id: 'w-subs', name: 'Sabit Giderler' }, { id: 'w-converter', name: 'Döviz Çevirici' }, { id: 'w-focus', name: 'Odak Modu' },
             { id: 'w-notes', name: 'Akıllı Notlar' }, { id: 'w-passqr', name: 'Şifre & QR' }, { id: 'w-battery', name: 'Sistem Pili' },
             { id: 'w-email', name: 'Hızlı E-Posta' }
@@ -661,7 +708,6 @@
         function openSettings() {
             let userSettings = JSON.parse(localStorage.getItem('lifedash_settings')) || { name: "Adel", color: "#5e5ce6", particles: true, hiddenWidgets: [] };
             document.getElementById('setting-name').value = userSettings.name || "Adel";
-            document.getElementById('setting-avatar').value = userSettings.avatar || "";
             document.getElementById('setting-bg-custom').value = userSettings.bgCustom || "";
             document.getElementById('setting-color').value = userSettings.color || "#5e5ce6";
             document.getElementById('setting-particles').checked = userSettings.particles !== false;
@@ -681,7 +727,6 @@
         
         function saveSettings() { 
             const n = document.getElementById('setting-name').value || "Adel";
-            const a = document.getElementById('setting-avatar').value.trim();
             const bgC = document.getElementById('setting-bg-custom').value.trim();
             const c = document.getElementById('setting-color').value;
             const p = document.getElementById('setting-particles').checked;
@@ -693,18 +738,28 @@
 
             let userSettings = JSON.parse(localStorage.getItem('lifedash_settings')) || {};
             userSettings.name = n;
-            userSettings.avatar = a;
             userSettings.bgCustom = bgC;
             userSettings.color = c;
             userSettings.particles = p;
             userSettings.hiddenWidgets = hiddenWidgets;
             localStorage.setItem('lifedash_settings', JSON.stringify(userSettings));
+            window.ldSettings = userSettings;
             
             applySettings(userSettings);
             closeSettings();
         }
 
         function applySettings(settings) {
+            // Brand Name Update
+            const userName = settings.name || "Adel";
+            document.title = `${userName}Jarwis | Yönetim Paneli`;
+            
+            const brandSpanTop = document.getElementById('brand-name-top');
+            if(brandSpanTop) brandSpanTop.innerHTML = `⌘ ${userName}<span style="color: var(--accent);">Jarwis</span>`;
+            
+            const brandSpanSide = document.getElementById('brand-name-side');
+            if(brandSpanSide) brandSpanSide.innerHTML = `${userName}<span style="color: var(--accent);">Jarwis</span>`;
+
             // Color
             if(settings.color) document.documentElement.style.setProperty('--accent', settings.color);
             
@@ -722,15 +777,6 @@
                 document.body.style.backgroundImage = `url('${bgUrl}')`;
             } else {
                 document.body.style.backgroundImage = `url('${bgs[bgIndex]}')`;
-            }
-
-            // Avatar
-            const avImg = document.getElementById('dock-avatar');
-            if(settings.avatar) {
-                avImg.src = settings.avatar;
-                avImg.style.display = 'block';
-            } else {
-                avImg.style.display = 'none';
             }
 
             // Widgets
@@ -752,6 +798,7 @@
 
         // INIT LOAD SETTINGS
         const initialSet = JSON.parse(localStorage.getItem('lifedash_settings')) || { color: "#5e5ce6", particles: true, hiddenWidgets: [] };
+        window.ldSettings = initialSet;
         applySettings(initialSet);
         
         setTimeout(() => {
@@ -794,8 +841,16 @@
             // Greeting Update
             const h = n.getHours();
             let g = 'İyi Geceler'; if (h>=6 && h<12) g = 'Günaydın'; else if (h>=12 && h<18) g = 'İyi Günler'; else if (h>=18 && h<22) g = 'İyi Akşamlar';
-            currentSettings = JSON.parse(localStorage.getItem('lifedash_settings')) || { name: "Adel" }; // Keep simple
-            document.getElementById('greeting').textContent = `${g}, ${currentSettings.name}`;
+            
+            // Performans düzeltmesi: Her saniye JSON.parse yapmaktan kaçındık
+            let userName = "Adel";
+            if (typeof window.ldSettings !== 'undefined' && window.ldSettings.name) {
+                userName = window.ldSettings.name;
+            } else if (currentSettings && currentSettings.name) {
+                userName = currentSettings.name;
+            }
+            
+            document.getElementById('greeting').textContent = `${g}, ${userName}`;
         }, 1000);
 
         // CALENDAR
@@ -914,6 +969,27 @@
         }
         fetchAPIs(); setInterval(fetchAPIs, 300000);
 
+        // LIVE MAP (Google Maps Embed API via Geolocation)
+        function updateMapLocation() {
+            const btn = document.getElementById('map-init-btn');
+            const frame = document.getElementById('google-map-frame');
+            if (navigator.geolocation) {
+                if(btn) btn.textContent = 'Konum Aranıyor...';
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    // output=embed forces classic embed view without API key
+                    frame.src = `https://maps.google.com/maps?q=${lat},${lon}&z=14&output=embed`;
+                    frame.style.display = 'block';
+                    if(btn) btn.style.display = 'none';
+                }, (error) => {
+                    if(btn) btn.textContent = 'İzin Reddedildi / Hata';
+                }, { timeout: 10000 });
+            } else {
+                if(btn) btn.textContent = 'Tarayıcı Desteklemiyor';
+            }
+        }
+
         // NEWS SHOWCASE (Visual Carousel)
         let newsItems = []; 
         let currNewsIdx = 0;
@@ -1026,14 +1102,60 @@
         function genQR() { const v=document.getElementById('qr-in').value.trim(); const img=document.getElementById('qr-img'); if(v){img.src=`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(v)}`; img.style.display='block';}else{img.style.display='none';} }
 
         // FOCUS & VOICE & NOTES
-        const nA = document.getElementById('note-area'); nA.value = localStorage.getItem('ld_notes')||''; nA.addEventListener('input', e => localStorage.setItem('ld_notes', e.target.value));
-        let rec; let isDict = false; const micBtn = document.getElementById('mic-btn');
+        const nA = document.getElementById('note-area'); 
+        nA.value = localStorage.getItem('ld_notes') || ''; 
+        nA.addEventListener('input', e => localStorage.setItem('ld_notes', e.target.value));
+        
+        window.clearNotes = function() {
+            if(confirm('Tüm notlarınızı silmek istediğinize emin misiniz?')) {
+                document.getElementById('note-area').value = '';
+                localStorage.setItem('ld_notes', '');
+            }
+        };
+
+        let rec; let isDict = false; const micBtn = document.getElementById('mic-btn'); const dictStatus = document.getElementById('dict-status');
         if ('webkitSpeechRecognition' in window) {
             rec = new webkitSpeechRecognition(); rec.continuous = true; rec.interimResults = true; rec.lang = 'tr-TR';
-            rec.onresult = e => { let t=''; for(let i=e.resultIndex; i<e.results.length; ++i) if(e.results[i].isFinal) t+=e.results[i][0].transcript+' '; if(t){nA.value+=(nA.value?' ':'')+t; localStorage.setItem('ld_notes',nA.value);} };
-            rec.onend = () => { isDict=false; micBtn.style.background='rgba(255,255,255,0.1)'; };
+            
+            // Auto append new dictation text cleanly
+            let finalTranscript = '';
+            rec.onstart = () => { 
+                isDict=true; 
+                micBtn.style.background='var(--danger)'; 
+                micBtn.style.transform='scale(1.1)'; 
+                dictStatus.style.opacity = '1'; 
+                dictStatus.style.animation = 'blink-light 1.5s infinite';
+                finalTranscript = nA.value; 
+            };
+            
+            rec.onresult = e => { 
+                let interim = '';
+                for(let i=e.resultIndex; i<e.results.length; ++i) {
+                    if(e.results[i].isFinal) finalTranscript += e.results[i][0].transcript + ' '; 
+                    else interim += e.results[i][0].transcript;
+                }
+                nA.value = finalTranscript + interim;
+                localStorage.setItem('ld_notes', finalTranscript);
+                // Scroll to bottom automatically while dictating
+                nA.scrollTop = nA.scrollHeight;
+            };
+            
+            rec.onend = () => { 
+                isDict=false; 
+                micBtn.style.background='rgba(255,255,255,0.1)'; 
+                micBtn.style.transform='scale(1)'; 
+                dictStatus.style.opacity = '0'; 
+                dictStatus.style.animation = 'none';
+            };
+            rec.onerror = (event) => { console.error('Speech recognition error', event); };
+        } else {
+            micBtn.style.display = 'none'; // Tarayıcı desteklemiyorsa butonu gizle
         }
-        function toggleDictation() { if(!rec) return; if(isDict) rec.stop(); else { rec.start(); isDict=true; micBtn.style.background='var(--danger)'; } }
+
+        function toggleDictation() { 
+            if(!rec) { alert("Tarayıcınız sesle yazdırmayı (Web Speech API) desteklemiyor. (Örn: Chrome veya Edge kullanın)"); return; }
+            if(isDict) rec.stop(); else { rec.start(); } 
+        }
 
         let pInt; let pTime=25*60; let pRun=false; 
         function uPomo() {
@@ -1055,6 +1177,7 @@
             } 
         }
         function resetPomo(){ clearInterval(pInt); pRun=false; pTime=25*60; document.getElementById('pomo-btn').textContent='Başlat'; document.getElementById('zen-mode-overlay').style.display='none'; uPomo(); }
+
 
         // DECISION MAKER (Rulet)
         function spinDecision() {
@@ -1105,6 +1228,37 @@
         function addTask(){ const v=document.getElementById('task-in').value.trim(); if(v){ts.push({t:v,c:false}); document.getElementById('task-in').value=''; rL(ts,'task-list',lsT);} }
         rL(ts,'task-list',lsT);
 
+        // PROMPT LIBRARY
+        const prList = JSON.parse(localStorage.getItem('ld_prompts')) || [];
+        function rPr() {
+            const wrap = document.getElementById('prompt-list'); wrap.innerHTML = '';
+            prList.forEach((p, i) => {
+                wrap.innerHTML += `
+                <div class="list-item" style="flex-direction: column; align-items: stretch; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 0.6rem; border: 1px solid rgba(255,255,255,0.05);">
+                    <div class="flex-between" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.4rem; margin-bottom: 0.4rem;">
+                        <strong style="color: var(--accent); font-size: 0.85rem;">${p.n}</strong>
+                        <div style="display:flex; gap:0.3rem;">
+                            <button class="btn-icon" style="padding:0; font-size:1rem; color:var(--text-muted);" onclick="copyPrompt(${i})" title="Kopyala">📋</button>
+                            <button class="btn-icon" style="padding:0; font-size:1rem; color:var(--danger);" onclick="delPrompt(${i})" title="Sil">✕</button>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" title="${p.t}">${p.t}</div>
+                </div>`;
+            });
+            localStorage.setItem('ld_prompts', JSON.stringify(prList));
+        }
+        function addPrompt() {
+            const n = document.getElementById('pr-name').value.trim();
+            const t = document.getElementById('pr-text').value.trim();
+            if(n && t) { prList.push({n, t}); document.getElementById('pr-name').value=''; document.getElementById('pr-text').value=''; document.getElementById('prompt-form').style.display='none'; rPr(); }
+        }
+        function delPrompt(i) { if(confirm('Bu promptu silmek istiyor musunuz?')) { prList.splice(i, 1); rPr(); } }
+        window.copyPrompt = function(i) {
+            navigator.clipboard.writeText(prList[i].t);
+            alert('Prompt Kopyalandı! (Panoya Yapıştırabilirsiniz)');
+        };
+        rPr();
+
         // TRANSLATOR
         let transTO;
         function doTranslate() {
@@ -1143,7 +1297,7 @@
         let isDrawerOpen = false;
         function toggleDrawer(closeOnly=false) {
             const d = document.getElementById('side-drawer');
-            const drawerWidth = window.innerWidth < 768 ? '-100%' : '-400px';
+            const drawerWidth = window.innerWidth < 768 ? '-100%' : '-450px';
             
             if(isDrawerOpen || closeOnly) {
                 d.style.right = drawerWidth; isDrawerOpen = false;
