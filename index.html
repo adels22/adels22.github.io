@@ -22,25 +22,134 @@
 
         /* ── LIGHT THEME ───────────────────────────────────────────── */
         body.light-theme {
-            --bg-color: #f0f0f5; --surface: rgba(255,255,255,0.75);
-            --surface-hover: rgba(240,240,250,0.9); --border: rgba(0,0,0,0.1);
-            --text-main: #1a1a2e; --text-muted: #6b6b80;
-            background-color: var(--bg-color) !important;
+            background-color: #eef0f5 !important;
         }
         body.light-theme .bg-overlay {
-            background: radial-gradient(circle at top right, rgba(94,92,230,0.1), transparent 40%),
-                        radial-gradient(circle at bottom left, rgba(16,163,127,0.07), transparent 40%),
-                        rgba(240,240,245,0.7);
+            background: radial-gradient(circle at top right, rgba(94,92,230,0.08), transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(16,163,127,0.05), transparent 40%),
+                        rgba(238,240,245,0.6) !important;
         }
-        body.light-theme .widget { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        /* Widget */
+        body.light-theme .widget {
+            background: rgba(255,255,255,0.88) !important;
+            border-color: rgba(0,0,0,0.08) !important;
+            border-top-color: rgba(255,255,255,0.9) !important;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05) !important;
+            color: #1a1a2e !important;
+        }
+        body.light-theme .widget:hover {
+            border-color: rgba(0,0,0,0.15) !important;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12) !important;
+        }
+        /* Widget başlıklar */
+        body.light-theme .widget-title { color: #5a5a72 !important; }
+        /* Saat */
+        body.light-theme .clock-large {
+            background: linear-gradient(180deg, #1a1a2e 0%, #4a4a6a 100%) !important;
+            -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important;
+        }
+        /* Input / select / textarea */
         body.light-theme input:not([type="checkbox"]):not([type="color"]),
-        body.light-theme select, body.light-theme textarea {
-            background: rgba(0,0,0,0.06); color: var(--text-main); border-color: rgba(0,0,0,0.15);
+        body.light-theme select,
+        body.light-theme textarea {
+            background: rgba(0,0,0,0.05) !important;
+            color: #1a1a2e !important;
+            border-color: rgba(0,0,0,0.13) !important;
         }
-        body.light-theme #note-area { background: rgba(0,0,0,0.04) !important; color: var(--text-main) !important; }
-        body.light-theme .ticker-wrap { background: rgba(255,255,255,0.7); }
-        body.light-theme .sidebar { background: rgba(245,245,250,0.95); }
-        body.light-theme #side-drawer { background: rgba(245,245,250,0.98); }
+        body.light-theme input::placeholder,
+        body.light-theme textarea::placeholder { color: #9a9aaa !important; }
+        /* Butonlar */
+        body.light-theme .btn-glass {
+            background: rgba(0,0,0,0.05) !important;
+            border-color: rgba(0,0,0,0.12) !important;
+            color: #1a1a2e !important;
+        }
+        body.light-theme .btn-glass:hover { background: rgba(0,0,0,0.1) !important; }
+        body.light-theme .btn-icon { color: #5a5a72 !important; }
+        body.light-theme .btn-icon:hover { color: #1a1a2e !important; background: rgba(0,0,0,0.07) !important; }
+        /* Ticker */
+        body.light-theme .ticker-wrap { background: rgba(255,255,255,0.85) !important; border-color: rgba(0,0,0,0.08) !important; }
+        body.light-theme .ticker-item, body.light-theme .ticker-item a { color: #1a1a2e !important; text-shadow: none !important; }
+        /* Header */
+        body.light-theme #profile-badge { background: rgba(255,255,255,0.7) !important; border-color: rgba(0,0,0,0.08) !important; }
+        body.light-theme #greeting { color: #1a1a2e !important; }
+        /* Sidebar */
+        body.light-theme .sidebar {
+            background: rgba(248,248,252,0.97) !important;
+            border-right-color: rgba(0,0,0,0.08) !important;
+        }
+        body.light-theme .nav-item { color: #5a5a72 !important; }
+        body.light-theme .nav-item:hover { color: #1a1a2e !important; background: rgba(0,0,0,0.05) !important; }
+        /* Drawer */
+        body.light-theme #side-drawer { background: rgba(248,248,252,0.99) !important; }
+        /* Arama çubuğu */
+        body.light-theme #top-search-area input {
+            background: rgba(255,255,255,0.85) !important;
+            color: #1a1a2e !important;
+            border-color: rgba(0,0,0,0.1) !important;
+        }
+        /* Liste öğeleri */
+        body.light-theme .list-item { border-color: rgba(0,0,0,0.06) !important; }
+        body.light-theme .list-text { color: #1a1a2e !important; }
+        body.light-theme .list-text.done { color: #9a9aaa !important; }
+        /* Takvim */
+        body.light-theme .cal-day:hover { background: rgba(0,0,0,0.07) !important; }
+        body.light-theme .cal-day-name { color: #5a5a72 !important; }
+        /* System status bar */
+        body.light-theme [style*="rgba(0,0,0,0.4)"] { color: #1a1a2e; }
+        /* Pomo zaman */
+        body.light-theme #pomo-time, body.light-theme #zen-time {
+            background: linear-gradient(180deg, #1a1a2e 0%, #5a5a72 100%) !important;
+            -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important;
+        }
+        /* Markdown */
+        body.light-theme .md-btn { background: rgba(0,0,0,0.06) !important; border-color: rgba(0,0,0,0.1) !important; color: #1a1a2e !important; }
+        body.light-theme .md-preview { background: rgba(0,0,0,0.04) !important; color: #1a1a2e !important; }
+        /* Kod alanları */
+        body.light-theme code { background: rgba(0,0,0,0.06) !important; color: #1a1a2e !important; }
+        /* Haber sekme butonları */
+        body.light-theme .news-tab { color: #5a5a72 !important; }
+        body.light-theme .news-tab.active { color: white !important; }
+        /* Genel strong/bold metin */
+        body.light-theme strong { color: #1a1a2e !important; }
+        /* flex-between içindeki strong'lar */
+        body.light-theme .flex-between strong { color: #1a1a2e !important; }
+        /* Monospace/code alanları (renk paleti) */
+        body.light-theme code[id^="color-"] { background: rgba(0,0,0,0.06) !important; color: #2a2a4a !important; }
+        /* Top search area */
+        body.light-theme #top-search-area form input {
+            background: rgba(255,255,255,0.9) !important;
+            color: #1a1a2e !important;
+            border-color: rgba(0,0,0,0.12) !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+        }
+        /* Sistem durum barı */
+        body.light-theme [style*="font-family: monospace"] {
+            background: rgba(255,255,255,0.88) !important;
+            color: #4a4a62 !important;
+            border-color: rgba(0,0,0,0.1) !important;
+        }
+        /* Header menü & logo alanı */
+        body.light-theme .logo, body.light-theme #brand-name-top { color: #1a1a2e !important; }
+        body.light-theme [onclick="toggleSidebar()"] {
+            background: rgba(255,255,255,0.85) !important;
+            border-color: rgba(0,0,0,0.1) !important;
+            color: #1a1a2e !important;
+        }
+        /* Noise butonları */
+        body.light-theme .noise-btn {
+            background: rgba(0,0,0,0.05) !important;
+            border-color: rgba(0,0,0,0.12) !important;
+            color: #5a5a72 !important;
+        }
+        /* Abonelik toplam satırı */
+        body.light-theme #subs-total { color: var(--accent) !important; }
+        /* Takvim prev/next butonları */
+        body.light-theme .cal-header .btn-glass {
+            background: rgba(0,0,0,0.07) !important;
+            border-color: rgba(0,0,0,0.15) !important;
+            color: #1a1a2e !important;
+        }
 
         /* ── MARKDOWN TOOLBAR ─────────────────────────────────────── */
         .md-toolbar { display: flex; gap: 0.3rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
@@ -924,7 +1033,9 @@
         if (s.bgCustom) { s.bgCustom = ''; Storage.save('lifedash_settings', s); }
         State.bgIndex = (State.bgIndex + 1) % BACKGROUNDS.length;
         Storage.save('ld_bg_index', State.bgIndex);
-        document.body.style.backgroundImage = `url('${BACKGROUNDS[State.bgIndex]}')`;
+        if (State.theme !== 'light') {
+            document.body.style.backgroundImage = `url('${BACKGROUNDS[State.bgIndex]}')`;
+        }
     }
 
     // ── SETTINGS ─────────────────────────────────────────────────────────────
@@ -980,13 +1091,16 @@
         const pDiv = document.getElementById('particles-js');
         if (pDiv) pDiv.style.display = s.particles !== false ? 'block' : 'none';
 
-        if (s.bgCustom) {
-            let url = s.bgCustom.startsWith('http')
-                ? s.bgCustom
-                : `https://picsum.photos/seed/${encodeURIComponent(s.bgCustom)}/1920/1080`;
-            document.body.style.backgroundImage = `url('${url}')`;
-        } else {
-            document.body.style.backgroundImage = `url('${BACKGROUNDS[State.bgIndex]}')`;
+        // Light modda arka plan görseli gösterilmez
+        if (State.theme !== 'light') {
+            if (s.bgCustom) {
+                let url = s.bgCustom.startsWith('http')
+                    ? s.bgCustom
+                    : `https://picsum.photos/seed/${encodeURIComponent(s.bgCustom)}/1920/1080`;
+                document.body.style.backgroundImage = `url('${url}')`;
+            } else {
+                document.body.style.backgroundImage = `url('${BACKGROUNDS[State.bgIndex]}')`;
+            }
         }
 
         const hidden = s.hiddenWidgets || [];
@@ -1733,19 +1847,104 @@
     }
 
     // ── THEME ─────────────────────────────────────────────────────────────────
+    const DARK_VARS = {
+        '--bg-color':      '#0f0f13',
+        '--surface':       'rgba(20, 20, 25, 0.45)',
+        '--surface-hover': 'rgba(35, 35, 45, 0.65)',
+        '--border':        'rgba(255, 255, 255, 0.08)',
+        '--text-main':     '#ffffff',
+        '--text-muted':    '#a0a0ab',
+    };
+    const LIGHT_VARS = {
+        '--bg-color':      '#eef0f5',
+        '--surface':       'rgba(255, 255, 255, 0.82)',
+        '--surface-hover': 'rgba(240, 240, 250, 0.95)',
+        '--border':        'rgba(0, 0, 0, 0.09)',
+        '--text-main':     '#1a1a2e',
+        '--text-muted':    '#5a5a72',
+    };
+
     function applyTheme(theme) {
+        const root = document.documentElement;
+        const icon = document.getElementById('theme-nav-icon');
+        const txt  = document.getElementById('theme-nav-text');
+
         if (theme === 'light') {
             document.body.classList.add('light-theme');
-            const icon = document.getElementById('theme-nav-icon');
-            const text = document.getElementById('theme-nav-text');
+            root.style.setProperty('--bg-color',      '#eef0f5');
+            root.style.setProperty('--surface',       'rgba(255,255,255,0.88)');
+            root.style.setProperty('--surface-hover', 'rgba(240,240,250,0.95)');
+            root.style.setProperty('--border',        'rgba(0,0,0,0.09)');
+            root.style.setProperty('--text-main',     '#1a1a2e');
+            root.style.setProperty('--text-muted',    '#5a5a72');
+            document.body.style.backgroundImage = 'none';
+            document.body.style.backgroundColor = '#eef0f5';
+            // Arama çubuklarını aydınlat (inline onfocus/onblur override'larını sıfırla)
+            document.querySelectorAll('#top-search-area input').forEach(inp => {
+                inp.style.background    = 'rgba(255,255,255,0.92)';
+                inp.style.color         = '#1a1a2e';
+                inp.style.borderColor   = 'rgba(0,0,0,0.12)';
+                inp.style.boxShadow     = '0 2px 10px rgba(0,0,0,0.07)';
+                inp.dataset.darkOnfocus = inp.getAttribute('onfocus') || '';
+                inp.dataset.darkOnblur  = inp.getAttribute('onblur')  || '';
+                inp.setAttribute('onfocus', `this.style.background='rgba(255,255,255,1)';this.style.borderColor='var(--accent)';`);
+                inp.setAttribute('onblur',  `this.style.background='rgba(255,255,255,0.92)';this.style.borderColor='rgba(0,0,0,0.12)';`);
+            });
+            // Sistem durum barını aydınlat
+            const statusBar = document.querySelector('[style*="font-family: monospace"]');
+            if (statusBar) { statusBar.style.background = 'rgba(255,255,255,0.82)'; statusBar.style.color = '#5a5a72'; }
+            // Profile badge
+            const badge = document.getElementById('profile-badge');
+            if (badge) { badge.style.background = 'rgba(255,255,255,0.75)'; }
+            // Widget içindeki rgba(0,0,0,X) koyu kutuları aydınlat
+            document.querySelectorAll('.widget [style]').forEach(el => {
+                const bg = el.style.backgroundColor;
+                if (!bg) return;
+                const m = bg.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+                if (m && parseInt(m[1]) < 60 && parseInt(m[2]) < 60 && parseInt(m[3]) < 60) {
+                    el.dataset.darkBg = bg;
+                    el.style.backgroundColor = `rgba(0,0,0,${Math.min(parseFloat(m[4]) * 0.25, 0.06)})`;
+                }
+            });
             if (icon) icon.textContent = '☀️';
-            if (text) text.textContent = 'Açık Mod';
+            if (txt)  txt.textContent  = 'Açık Mod';
         } else {
             document.body.classList.remove('light-theme');
-            const icon = document.getElementById('theme-nav-icon');
-            const text = document.getElementById('theme-nav-text');
+            root.style.setProperty('--bg-color',      '#0f0f13');
+            root.style.setProperty('--surface',       'rgba(20,20,25,0.45)');
+            root.style.setProperty('--surface-hover', 'rgba(35,35,45,0.65)');
+            root.style.setProperty('--border',        'rgba(255,255,255,0.08)');
+            root.style.setProperty('--text-main',     '#ffffff');
+            root.style.setProperty('--text-muted',    '#a0a0ab');
+            document.body.style.backgroundColor = '';
+            // Koyu kutuları geri yükle
+            document.querySelectorAll('.widget [data-dark-bg]').forEach(el => {
+                el.style.backgroundColor = el.dataset.darkBg;
+                delete el.dataset.darkBg;
+            });
+            // Arama çubuklarını geri yükle
+            document.querySelectorAll('#top-search-area input').forEach(inp => {
+                inp.style.background = 'rgba(0,0,0,0.4)';
+                inp.style.color = 'white';
+                inp.style.borderColor = 'rgba(255,255,255,0.1)';
+                inp.style.boxShadow = '';
+                if (inp.dataset.darkOnfocus) inp.setAttribute('onfocus', inp.dataset.darkOnfocus);
+                if (inp.dataset.darkOnblur)  inp.setAttribute('onblur',  inp.dataset.darkOnblur);
+            });
+            // Status bar geri yükle
+            const statusBar = document.querySelector('[style*="font-family: monospace"]');
+            if (statusBar) { statusBar.style.background = ''; statusBar.style.color = ''; }
+            const badge = document.getElementById('profile-badge');
+            if (badge) { badge.style.background = ''; }
+            const s = State.settings;
+            if (s && s.bgCustom) {
+                const url = s.bgCustom.startsWith('http') ? s.bgCustom : `https://picsum.photos/seed/${encodeURIComponent(s.bgCustom)}/1920/1080`;
+                document.body.style.backgroundImage = `url('${url}')`;
+            } else {
+                document.body.style.backgroundImage = `url('${BACKGROUNDS[State.bgIndex]}')`;
+            }
             if (icon) icon.textContent = '🌙';
-            if (text) text.textContent = 'Karanlık Mod';
+            if (txt)  txt.textContent  = 'Karanlık Mod';
         }
     }
     function toggleTheme() {
