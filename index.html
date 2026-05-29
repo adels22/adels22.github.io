@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AdelSJarwis | Yönetim Paneli</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#5e5ce6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AdelSJarwis">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -14,6 +19,55 @@
             --secondary-color: #10a37f;
             --danger: #ff453a; --success: #32d74b; --radius: 20px;
         }
+
+        /* ── LIGHT THEME ───────────────────────────────────────────── */
+        body.light-theme {
+            --bg-color: #f0f0f5; --surface: rgba(255,255,255,0.75);
+            --surface-hover: rgba(240,240,250,0.9); --border: rgba(0,0,0,0.1);
+            --text-main: #1a1a2e; --text-muted: #6b6b80;
+            background-color: var(--bg-color) !important;
+        }
+        body.light-theme .bg-overlay {
+            background: radial-gradient(circle at top right, rgba(94,92,230,0.1), transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(16,163,127,0.07), transparent 40%),
+                        rgba(240,240,245,0.7);
+        }
+        body.light-theme .widget { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        body.light-theme input:not([type="checkbox"]):not([type="color"]),
+        body.light-theme select, body.light-theme textarea {
+            background: rgba(0,0,0,0.06); color: var(--text-main); border-color: rgba(0,0,0,0.15);
+        }
+        body.light-theme #note-area { background: rgba(0,0,0,0.04) !important; color: var(--text-main) !important; }
+        body.light-theme .ticker-wrap { background: rgba(255,255,255,0.7); }
+        body.light-theme .sidebar { background: rgba(245,245,250,0.95); }
+        body.light-theme #side-drawer { background: rgba(245,245,250,0.98); }
+
+        /* ── MARKDOWN TOOLBAR ─────────────────────────────────────── */
+        .md-toolbar { display: flex; gap: 0.3rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+        .md-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: var(--text-main); padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; font-family: inherit; }
+        .md-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+        .md-preview { min-height: 140px; background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1rem; color: var(--text-main); font-size: 0.95rem; line-height: 1.6; display: none; overflow-y: auto; }
+        .md-preview h1,.md-preview h2,.md-preview h3 { margin: 0.5rem 0; color: var(--accent); }
+        .md-preview strong { color: white; }
+        .md-preview ul,.md-preview ol { padding-left: 1.5rem; }
+        .md-preview code { background: rgba(255,255,255,0.1); padding: 0.1rem 0.4rem; border-radius: 4px; font-family: monospace; font-size: 0.85rem; }
+
+        /* ── SHORTCUT WIDGET ──────────────────────────────────────── */
+        .shortcut-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.7rem; margin-bottom: 1rem; }
+        .shortcut-item { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; cursor: pointer; text-decoration: none; padding: 0.5rem; border-radius: 10px; transition: 0.2s; border: 1px solid transparent; }
+        .shortcut-item:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); transform: translateY(-2px); }
+        .shortcut-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; overflow: hidden; }
+        .shortcut-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
+        .shortcut-label { font-size: 0.7rem; color: var(--text-muted); text-align: center; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .shortcut-del { display: none; position: absolute; top: -4px; right: -4px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 0.6rem; cursor: pointer; align-items: center; justify-content: center; }
+        .shortcut-item:hover .shortcut-del { display: flex; }
+        .shortcut-item { position: relative; }
+
+        /* ── SOUND TOOLS ──────────────────────────────────────────── */
+        .bpm-display { font-size: 2.5rem; font-weight: 700; text-align: center; color: var(--accent); line-height: 1; }
+        .bpm-label { font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-bottom: 0.5rem; }
+        .noise-btn { flex: 1; padding: 0.5rem; font-size: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-muted); cursor: pointer; transition: 0.2s; font-family: inherit; }
+        .noise-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
         * { box-sizing: border-box; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -226,6 +280,9 @@
             <button class="nav-item" onclick="changeBackground()" title="Arkaplanı Değiştir">
                 <span class="nav-icon">🖼️</span><span class="nav-text">Arkaplan</span>
             </button>
+            <button class="nav-item" onclick="toggleTheme()" title="Tema Değiştir" id="theme-nav-btn">
+                <span class="nav-icon" id="theme-nav-icon">🌙</span><span class="nav-text" id="theme-nav-text">Karanlık Mod</span>
+            </button>
             <button class="nav-item" onclick="openSettings()" title="Ayarlar">
                 <span class="nav-icon">⚙️</span><span class="nav-text">Ayarlar</span>
             </button>
@@ -341,6 +398,24 @@
                     </select>
                 </div>
                 <div style="background: rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 8px; text-align: center; font-size: 1.2rem; font-weight: 600; color: var(--accent);" id="unit-out">0.62 Mil</div>
+            </div>
+
+            <!-- Özel Kısayol Linkleri -->
+            <div class="widget" id="w-shortcuts" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">
+                    <span>🔗 Hızlı Kısayollar</span>
+                    <button class="btn-icon" onclick="document.getElementById('shortcut-form').style.display=document.getElementById('shortcut-form').style.display==='flex'?'none':'flex'" style="font-size:1rem;">+</button>
+                </div>
+                <form id="shortcut-form" style="display:none; gap:0.5rem; margin-bottom:0.8rem; flex-direction:column;" onsubmit="event.preventDefault(); addShortcut();">
+                    <input type="text" id="sc-label" placeholder="İsim (Örn: YouTube)" style="padding:0.4rem; font-size:0.85rem;" required>
+                    <input type="url" id="sc-url" placeholder="URL (Örn: https://youtube.com)" style="padding:0.4rem; font-size:0.85rem;" required>
+                    <div class="flex-row" style="margin:0;">
+                        <button type="button" class="btn-glass" style="flex:1; padding:0.3rem;" onclick="document.getElementById('shortcut-form').style.display='none'">İptal</button>
+                        <button type="submit" class="btn-primary" style="flex:1; padding:0.3rem;">Ekle</button>
+                    </div>
+                </form>
+                <div class="shortcut-grid" id="shortcut-grid"></div>
             </div>
 
             <!-- Çeviri Modülü -->
@@ -472,6 +547,35 @@
                     <div style="background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 8px;">🇹🇷 <strong id="c-try">--</strong></div>
                 </div>
             </div>
+            <!-- Renk Paleti Seçici -->
+            <div class="widget" id="w-colorpicker" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">🎨 Renk Paleti & Çevirici</div>
+                <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
+                    <input type="color" id="color-pick" value="#5e5ce6" oninput="updateColorValues()" style="width:60px; height:60px; border:none; background:none; cursor:pointer; border-radius:12px; padding:0;">
+                    <div style="flex:1; display:flex; flex-direction:column; gap:0.4rem;">
+                        <div style="font-size:0.75rem; color:var(--text-muted);">Seçilen Renk</div>
+                        <div id="color-preview" style="height:30px; border-radius:8px; background:#5e5ce6; transition:0.3s;"></div>
+                    </div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.4rem; font-size:0.85rem;">
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <span style="color:var(--text-muted); width:35px;">HEX</span>
+                        <code id="color-hex" style="flex:1; background:rgba(0,0,0,0.2); padding:0.3rem 0.6rem; border-radius:6px; font-family:monospace;">#5e5ce6</code>
+                        <button class="btn-glass" style="padding:0.2rem 0.6rem; font-size:0.75rem;" onclick="copyColor('hex')">📋</button>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <span style="color:var(--text-muted); width:35px;">RGB</span>
+                        <code id="color-rgb" style="flex:1; background:rgba(0,0,0,0.2); padding:0.3rem 0.6rem; border-radius:6px; font-family:monospace;">94, 92, 230</code>
+                        <button class="btn-glass" style="padding:0.2rem 0.6rem; font-size:0.75rem;" onclick="copyColor('rgb')">📋</button>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <span style="color:var(--text-muted); width:35px;">HSL</span>
+                        <code id="color-hsl" style="flex:1; background:rgba(0,0,0,0.2); padding:0.3rem 0.6rem; border-radius:6px; font-family:monospace;">241°, 72%, 63%</code>
+                        <button class="btn-glass" style="padding:0.2rem 0.6rem; font-size:0.75rem;" onclick="copyColor('hsl')">📋</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- COL 3 -->
@@ -487,6 +591,18 @@
                         <button class="btn-primary" onclick="togglePomo()" id="pomo-btn" style="padding: 0.6rem 1.5rem;">Başlat</button>
                         <button class="btn-glass" onclick="resetPomo()">Sıfırla</button>
                     </div>
+                    <!-- Pomodoro İstatistikleri -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.5rem;">
+                        <div style="background:rgba(0,0,0,0.2); border-radius:10px; padding:0.7rem; text-align:center; border:1px solid rgba(255,255,255,0.05);">
+                            <div style="font-size:1.6rem; font-weight:700; color:var(--accent);" id="pomo-today">0</div>
+                            <div style="font-size:0.7rem; color:var(--text-muted);">Bugün</div>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.2); border-radius:10px; padding:0.7rem; text-align:center; border:1px solid rgba(255,255,255,0.05);">
+                            <div style="font-size:1.6rem; font-weight:700; color:var(--success);" id="pomo-total">0</div>
+                            <div style="font-size:0.7rem; color:var(--text-muted);">Toplam</div>
+                        </div>
+                    </div>
+                    <div style="font-size:0.7rem; color:var(--text-muted); text-align:center; margin-top:0.4rem;">🍅 = 25 dakika odak</div>
                 </div>
             </div>
 
@@ -497,6 +613,18 @@
                     <button type="button" class="btn-icon" onclick="window.clearNotes()" style="font-size: 0.9rem; padding: 0.2rem 0.5rem; z-index: 10;" title="Notları Temizle">🗑️</button>
                 </div>
                 
+                <!-- Markdown Toolbar -->
+                <div class="md-toolbar">
+                    <button class="md-btn" onclick="mdFormat('bold')" title="Kalın"><b>B</b></button>
+                    <button class="md-btn" onclick="mdFormat('italic')" title="İtalik"><i>I</i></button>
+                    <button class="md-btn" onclick="mdFormat('heading')" title="Başlık">H</button>
+                    <button class="md-btn" onclick="mdFormat('ul')" title="Liste">• —</button>
+                    <button class="md-btn" onclick="mdFormat('ol')" title="Numaralı Liste">1.</button>
+                    <button class="md-btn" onclick="mdFormat('code')" title="Kod">&lt;/&gt;</button>
+                    <button class="md-btn" onclick="mdFormat('hr')" title="Çizgi">—</button>
+                    <button class="md-btn" id="md-preview-btn" onclick="toggleMdPreview()" style="margin-left:auto;">👁 Önizle</button>
+                </div>
+                <div class="md-preview" id="md-preview-area"></div>
                 <div style="position: relative; flex: 1; display: flex; flex-direction: column;">
                     <textarea id="note-area" style="flex: 1; min-height: 140px; resize: vertical; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1rem 1rem 3rem 1rem; color: white; font-size: 0.95rem; line-height: 1.5; transition: border-color 0.3s;" placeholder="Not almak için buraya yazın veya mikrofona tıklayın..."></textarea>
                     
@@ -536,6 +664,35 @@
                         <div style="font-size: 2rem; font-weight: bold; margin-bottom: 0.2rem;" id="bat-level">--%</div>
                         <div style="color: var(--text-muted); font-size: 0.85rem;" id="bat-status">Hesaplanıyor...</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Metronom & Beyaz Gürültü -->
+            <div class="widget" id="w-sound" draggable="true">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="widget-title">🎵 Odak Sesleri</div>
+
+                <!-- Metronom -->
+                <div style="border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:1rem; margin-bottom:1rem;">
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.6rem; font-weight:600; letter-spacing:1px;">METRONOMİ</div>
+                    <div class="bpm-display" id="metro-bpm">120</div>
+                    <div class="bpm-label">BPM</div>
+                    <input type="range" id="metro-range" min="40" max="220" value="120" oninput="setMetronomeBPM(this.value)" style="width:100%; margin:0.5rem 0; accent-color:var(--accent);">
+                    <div style="display:flex; gap:0.5rem;">
+                        <button class="btn-primary" id="metro-btn" onclick="toggleMetronome()" style="flex:1; padding:0.5rem;">▶ Başlat</button>
+                        <div style="display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:50%; border:2px solid rgba(255,255,255,0.1); transition:0.1s;" id="metro-beat"></div>
+                    </div>
+                </div>
+
+                <!-- Beyaz Gürültü -->
+                <div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.6rem; font-weight:600; letter-spacing:1px;">ODAK SESLERİ</div>
+                    <div style="display:flex; gap:0.4rem; margin-bottom:0.5rem;">
+                        <button class="noise-btn" id="noise-white" onclick="toggleNoise('white')">⬜ Beyaz</button>
+                        <button class="noise-btn" id="noise-brown" onclick="toggleNoise('brown')">🟫 Kahve</button>
+                        <button class="noise-btn" id="noise-pink" onclick="toggleNoise('pink')">🌸 Pembe</button>
+                    </div>
+                    <input type="range" id="noise-vol" min="0" max="100" value="30" oninput="setNoiseVolume(this.value)" style="width:100%; accent-color:var(--accent);" title="Ses Seviyesi">
                 </div>
             </div>
 
@@ -701,7 +858,9 @@
         { id: 'w-decision', name: 'Karar Verici' }, { id: 'w-subs', name: 'Sabit Giderler' },
         { id: 'w-converter', name: 'Döviz Çevirici' }, { id: 'w-focus', name: 'Odak Modu' },
         { id: 'w-notes', name: 'Akıllı Notlar' }, { id: 'w-passqr', name: 'Şifre & QR' },
-        { id: 'w-battery', name: 'Sistem Pili' }, { id: 'w-email', name: 'Hızlı E-Posta' }
+        { id: 'w-battery', name: 'Sistem Pili' }, { id: 'w-email', name: 'Hızlı E-Posta' },
+        { id: 'w-shortcuts', name: 'Hızlı Kısayollar' }, { id: 'w-colorpicker', name: 'Renk Paleti' },
+        { id: 'w-sound', name: 'Odak Sesleri' }
     ];
 
     const NEWS_SOURCES = {
@@ -751,6 +910,11 @@
         tasks:          Storage.load('ld_tasks', []),
         subs:           Storage.load('ld_subs', []),
         prompts:        Storage.load('ld_prompts', []),
+        shortcuts:      Storage.load('ld_shortcuts', []),
+        pomoStats:      Storage.load('ld_pomo_stats', { today: 0, total: 0, lastReset: '' }),
+        theme:          Storage.load('ld_theme', 'dark'),
+        metronome:      { interval: null, running: false, bpm: 120 },
+        noise:          { ctx: null, source: null, gainNode: null, type: null },
         settings:       Storage.load('lifedash_settings', { color: '#5e5ce6', particles: true, hiddenWidgets: [] })
     };
 
@@ -1212,7 +1376,7 @@
             document.getElementById('zen-mode-overlay').style.display = 'flex';
             State.pomo.interval = setInterval(() => {
                 if (State.pomo.time > 0) { State.pomo.time--; updatePomoDisplay(); }
-                else { clearInterval(State.pomo.interval); State.pomo.running = false; alert('Mola Zamanı!'); resetPomo(); }
+                else { clearInterval(State.pomo.interval); State.pomo.running = false; recordPomoComplete(); alert('🍅 Mola Zamanı! Bir pomodoro tamamlandı!'); resetPomo(); }
             }, 1000);
         }
     }
@@ -1537,24 +1701,320 @@
             if (pDiv) pDiv.style.display = State.settings.particles !== false ? 'block' : 'none';
         }, 500);
 
+        applyTheme(State.theme);
         renderCalendar();
         renderSubs();
         renderTasks();
         renderPrompts();
+        renderShortcuts();
         convUnit();
         genPass();
+        updateColorValues();
         checkVent();
+        checkPomoStatsReset();
         initNotes();
         initBattery();
         initDragDrop();
         loadLayout();
+        initTouchGestures();
         fetchAPIs();
         fetchNewsShowcase('tech');
         setInterval(fetchAPIs, 300000);
         setInterval(checkVent, 60000);
+        setInterval(checkPomoStatsReset, 60000);
         initVisualEffects();
 
         document.getElementById('vault-box').value = localStorage.getItem('ld_vault') || '';
+
+        // PWA Service Worker kaydı
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(e => console.warn('SW kaydı:', e));
+        }
+    }
+
+    // ── THEME ─────────────────────────────────────────────────────────────────
+    function applyTheme(theme) {
+        if (theme === 'light') {
+            document.body.classList.add('light-theme');
+            const icon = document.getElementById('theme-nav-icon');
+            const text = document.getElementById('theme-nav-text');
+            if (icon) icon.textContent = '☀️';
+            if (text) text.textContent = 'Açık Mod';
+        } else {
+            document.body.classList.remove('light-theme');
+            const icon = document.getElementById('theme-nav-icon');
+            const text = document.getElementById('theme-nav-text');
+            if (icon) icon.textContent = '🌙';
+            if (text) text.textContent = 'Karanlık Mod';
+        }
+    }
+    function toggleTheme() {
+        State.theme = State.theme === 'dark' ? 'light' : 'dark';
+        Storage.save('ld_theme', State.theme);
+        applyTheme(State.theme);
+    }
+
+    // ── SHORTCUTS ─────────────────────────────────────────────────────────────
+    function renderShortcuts() {
+        const grid = document.getElementById('shortcut-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        State.shortcuts.forEach((s, i) => {
+            const domain = (() => { try { return new URL(s.url).hostname; } catch(e) { return ''; } })();
+            const faviconUrl = domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=64` : '';
+            grid.innerHTML += `
+                <a href="${s.url}" target="_blank" class="shortcut-item">
+                    <button class="shortcut-del" onclick="event.preventDefault();event.stopPropagation();removeShortcut(${i})">×</button>
+                    <div class="shortcut-icon">
+                        ${faviconUrl ? `<img src="${faviconUrl}" onerror="this.style.display='none';this.nextSibling.style.display='flex'" alt="">
+                        <span style="display:none;font-size:1.2rem;">🔗</span>` : '<span style="font-size:1.2rem;">🔗</span>'}
+                    </div>
+                    <span class="shortcut-label">${s.label}</span>
+                </a>`;
+        });
+    }
+    function addShortcut() {
+        const label = document.getElementById('sc-label').value.trim();
+        const url   = document.getElementById('sc-url').value.trim();
+        if (!label || !url) return;
+        let fullUrl = url.startsWith('http') ? url : 'https://' + url;
+        State.shortcuts.push({ label, url: fullUrl });
+        Storage.save('ld_shortcuts', State.shortcuts);
+        document.getElementById('sc-label').value = '';
+        document.getElementById('sc-url').value = '';
+        document.getElementById('shortcut-form').style.display = 'none';
+        renderShortcuts();
+    }
+    function removeShortcut(i) {
+        State.shortcuts.splice(i, 1);
+        Storage.save('ld_shortcuts', State.shortcuts);
+        renderShortcuts();
+    }
+
+    // ── POMODORO STATS ────────────────────────────────────────────────────────
+    function checkPomoStatsReset() {
+        const today = new Date().toDateString();
+        if (State.pomoStats.lastReset !== today) {
+            State.pomoStats.today    = 0;
+            State.pomoStats.lastReset = today;
+            Storage.save('ld_pomo_stats', State.pomoStats);
+        }
+        document.getElementById('pomo-today').textContent = State.pomoStats.today;
+        document.getElementById('pomo-total').textContent = State.pomoStats.total;
+    }
+    function recordPomoComplete() {
+        State.pomoStats.today++;
+        State.pomoStats.total++;
+        Storage.save('ld_pomo_stats', State.pomoStats);
+        document.getElementById('pomo-today').textContent = State.pomoStats.today;
+        document.getElementById('pomo-total').textContent = State.pomoStats.total;
+    }
+
+    // ── MARKDOWN EDITOR ───────────────────────────────────────────────────────
+    function mdFormat(type) {
+        const ta  = document.getElementById('note-area');
+        const s   = ta.selectionStart;
+        const e   = ta.selectionEnd;
+        const sel = ta.value.substring(s, e);
+        const map = { bold: `**${sel || 'kalın'}**`, italic: `*${sel || 'italik'}*`, heading: `\n## ${sel || 'Başlık'}\n`, ul: `\n- ${sel || 'Madde'}`, ol: `\n1. ${sel || 'Madde'}`, code: `\`${sel || 'kod'}\``, hr: '\n---\n' };
+        const replacement = map[type] || sel;
+        ta.value = ta.value.substring(0, s) + replacement + ta.value.substring(e);
+        ta.focus();
+        localStorage.setItem('ld_notes', ta.value);
+    }
+    let mdPreviewVisible = false;
+    function toggleMdPreview() {
+        mdPreviewVisible = !mdPreviewVisible;
+        const previewEl = document.getElementById('md-preview-area');
+        const noteEl    = document.getElementById('note-area');
+        const btn       = document.getElementById('md-preview-btn');
+        if (mdPreviewVisible) {
+            previewEl.style.display = 'block';
+            noteEl.style.display    = 'none';
+            btn.textContent         = '✏️ Düzenle';
+            previewEl.innerHTML = noteEl.value
+                .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+                .replace(/^# (.+)$/gm,'<h1>$1</h1>')
+                .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+                .replace(/\*(.+?)\*/g,'<em>$1</em>')
+                .replace(/`(.+?)`/g,'<code>$1</code>')
+                .replace(/^- (.+)$/gm,'<li>$1</li>')
+                .replace(/^---$/gm,'<hr>')
+                .replace(/\n/g,'<br>');
+        } else {
+            previewEl.style.display = 'none';
+            noteEl.style.display    = 'block';
+            btn.textContent         = '👁 Önizle';
+        }
+    }
+
+    // ── COLOR PICKER ──────────────────────────────────────────────────────────
+    function hexToRgb(hex) {
+        const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+        return { r, g, b };
+    }
+    function rgbToHsl(r, g, b) {
+        r /= 255; g /= 255; b /= 255;
+        const max = Math.max(r,g,b), min = Math.min(r,g,b);
+        let h, s, l = (max+min)/2;
+        if (max === min) { h = s = 0; }
+        else {
+            const d = max - min;
+            s = l > 0.5 ? d / (2-max-min) : d / (max+min);
+            switch(max) { case r: h=(g-b)/d+(g<b?6:0); break; case g: h=(b-r)/d+2; break; case b: h=(r-g)/d+4; break; }
+            h /= 6;
+        }
+        return { h: Math.round(h*360), s: Math.round(s*100), l: Math.round(l*100) };
+    }
+    function updateColorValues() {
+        const hex = document.getElementById('color-pick').value;
+        const { r, g, b } = hexToRgb(hex);
+        const { h, s, l } = rgbToHsl(r, g, b);
+        document.getElementById('color-hex').textContent     = hex;
+        document.getElementById('color-rgb').textContent     = `${r}, ${g}, ${b}`;
+        document.getElementById('color-hsl').textContent     = `${h}°, ${s}%, ${l}%`;
+        document.getElementById('color-preview').style.background = hex;
+    }
+    function copyColor(type) {
+        const vals = { hex: document.getElementById('color-hex').textContent, rgb: `rgb(${document.getElementById('color-rgb').textContent})`, hsl: `hsl(${document.getElementById('color-hsl').textContent})` };
+        navigator.clipboard.writeText(vals[type]).then(() => {
+            const btn = event.target; btn.textContent = '✓'; setTimeout(() => btn.textContent = '📋', 1200);
+        });
+    }
+
+    // ── METRONOME ─────────────────────────────────────────────────────────────
+    function setMetronomeBPM(bpm) {
+        State.metronome.bpm = parseInt(bpm);
+        document.getElementById('metro-bpm').textContent = bpm;
+        if (State.metronome.running) { stopMetronome(); startMetronome(); }
+    }
+    function startMetronome() {
+        const beat = document.getElementById('metro-beat');
+        State.metronome.running = true;
+        State.metronome.interval = setInterval(() => {
+            beat.style.background = 'var(--accent)';
+            beat.style.boxShadow  = '0 0 12px var(--accent)';
+            setTimeout(() => { beat.style.background = 'transparent'; beat.style.boxShadow = 'none'; }, 80);
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.frequency.value = 880; gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+                osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.1);
+            } catch(e) {}
+        }, 60000 / State.metronome.bpm);
+        document.getElementById('metro-btn').textContent = '⏹ Durdur';
+        document.getElementById('metro-btn').style.background = 'var(--danger)';
+    }
+    function stopMetronome() {
+        clearInterval(State.metronome.interval); State.metronome.running = false;
+        document.getElementById('metro-btn').textContent = '▶ Başlat';
+        document.getElementById('metro-btn').style.background = '';
+        const beat = document.getElementById('metro-beat');
+        beat.style.background = 'transparent'; beat.style.boxShadow = 'none';
+    }
+    function toggleMetronome() {
+        if (State.metronome.running) stopMetronome(); else startMetronome();
+    }
+
+    // ── WHITE / BROWN / PINK NOISE ────────────────────────────────────────────
+    function stopNoise() {
+        if (State.noise.source) { try { State.noise.source.stop(); } catch(e) {} State.noise.source = null; }
+        if (State.noise.ctx)    { try { State.noise.ctx.close();  } catch(e) {} State.noise.ctx = null; }
+        State.noise.type = null;
+        ['white','brown','pink'].forEach(t => document.getElementById(`noise-${t}`).classList.remove('active'));
+    }
+    function startNoise(type) {
+        const ctx      = new (window.AudioContext || window.webkitAudioContext)();
+        const bufSize  = ctx.sampleRate * 2;
+        const buffer   = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+        const data     = buffer.getChannelData(0);
+        let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0, lastOut=0;
+        for (let i = 0; i < bufSize; i++) {
+            const white = Math.random() * 2 - 1;
+            if (type === 'white') { data[i] = white; }
+            else if (type === 'brown') {
+                lastOut = (lastOut + (0.02 * white)) / 1.02;
+                data[i] = lastOut * 3.5;
+            } else { // pink
+                b0=0.99886*b0+white*0.0555179; b1=0.99332*b1+white*0.0750759;
+                b2=0.96900*b2+white*0.1538520; b3=0.86650*b3+white*0.3104856;
+                b4=0.55000*b4+white*0.5329522; b5=-0.7616*b5-white*0.0168980;
+                data[i] = (b0+b1+b2+b3+b4+b5+b6+white*0.5362) * 0.11;
+                b6 = white * 0.115926;
+            }
+        }
+        const gain   = ctx.createGain();
+        const vol    = (parseInt(document.getElementById('noise-vol').value) || 30) / 100;
+        gain.gain.value = vol * 0.3;
+        const source = ctx.createBufferSource();
+        source.buffer = buffer; source.loop = true;
+        source.connect(gain); gain.connect(ctx.destination);
+        source.start();
+        State.noise = { ctx, source, gainNode: gain, type };
+        document.getElementById(`noise-${type}`).classList.add('active');
+    }
+    function toggleNoise(type) {
+        if (State.noise.type === type) { stopNoise(); return; }
+        stopNoise();
+        startNoise(type);
+    }
+    function setNoiseVolume(val) {
+        if (State.noise.gainNode) State.noise.gainNode.gain.value = (val / 100) * 0.3;
+    }
+
+    // ── TOUCH GESTURES (Mobil Swipe) ─────────────────────────────────────────
+    function initTouchGestures() {
+        // Haber carousel swipe
+        const carousel = document.getElementById('news-carousel');
+        if (carousel) {
+            let startX = 0;
+            carousel.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+            carousel.addEventListener('touchend',   e => {
+                const diff = startX - e.changedTouches[0].clientX;
+                if (Math.abs(diff) > 50) { if (diff > 0) nextNews(); else prevNews(); }
+            }, { passive: true });
+        }
+        // Widget kolonları arasında swipe (mobilde kolon geçişi)
+        const container = document.getElementById('dashboard-container');
+        if (container && window.innerWidth <= 1024) {
+            let startX = 0, startScrollLeft = 0;
+            container.addEventListener('touchstart', e => { startX = e.touches[0].clientX; startScrollLeft = container.scrollLeft; }, { passive: true });
+            container.addEventListener('touchmove',  e => {
+                const diff = startX - e.touches[0].clientX;
+                container.scrollLeft = startScrollLeft + diff;
+            }, { passive: true });
+        }
+    }
+
+    // ── BETTER DRAG & DROP ────────────────────────────────────────────────────
+    function saveLayout() {
+        const layout = {};
+        document.querySelectorAll('.col').forEach((col, idx) => {
+            layout[`col-${idx + 1}`] = [...col.querySelectorAll('.widget')].map(w => w.id).filter(Boolean);
+        });
+        Storage.save('ld_layout', layout);
+    }
+
+    function loadLayout() {
+        const saved = Storage.load('ld_layout');
+        if (!saved) return;
+        // Güvenlik: kayıtlı düzende bilinen widget'lar var mı?
+        const allSavedIds = Object.values(saved).flat();
+        const knownIds    = AVAILABLE_WIDGETS.map(w => w.id);
+        const overlap     = allSavedIds.filter(id => knownIds.includes(id));
+        if (overlap.length < 3) { Storage.remove('ld_layout'); return; } // Çok eski layout, sıfırla
+        for (let i = 1; i <= 3; i++) {
+            const col = document.getElementById(`col-${i}`);
+            if (col && saved[`col-${i}`]) {
+                saved[`col-${i}`].forEach(wId => {
+                    const w = document.getElementById(wId);
+                    if (w) col.appendChild(w);
+                });
+            }
+        }
     }
 
     // ── EXPOSE TO WINDOW (HTML onclick handlers için) ─────────────────────────
@@ -1574,7 +2034,14 @@
         executeTerminal,
         updateMapLocation,
         nextNews, prevNews, goToNews, changeNewsCat, pauseNews, playNews,
-        convertCurr
+        convertCurr,
+        // Yeni özellikler
+        toggleTheme,
+        addShortcut, removeShortcut,
+        mdFormat, toggleMdPreview,
+        updateColorValues, copyColor,
+        toggleMetronome, setMetronomeBPM,
+        toggleNoise, setNoiseVolume
     });
 
     init();
